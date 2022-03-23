@@ -44,6 +44,7 @@ mean(state[['Population']])
 mean(state[['Population']], trim=0.1)
 median(state[['Population']])
 
+mean(state[['Murder.Rate']])
 weighted.mean(state[['Murder.Rate']], w=state[['Population']])
 library('matrixStats')
 weightedMedian(state[['Murder.Rate']], w=state[['Population']])

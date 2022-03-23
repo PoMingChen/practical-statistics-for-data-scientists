@@ -52,9 +52,7 @@ print(state['Population'].median())
 # Weighted mean is available with numpy. For weighted median, we can use the specialised package `wquantiles` (https://pypi.org/project/wquantiles/).
 
 print(state['Murder.Rate'].mean())
-
 print(np.average(state['Murder.Rate'], weights=state['Population']))
-
 print(wquantiles.median(state['Murder.Rate'], weights=state['Population']))
 
 ## Estimates of Variability
