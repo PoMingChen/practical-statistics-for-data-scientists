@@ -105,3 +105,37 @@ print(wquantiles.median(state['Murder.Rate'], weights=state['Population']))
 
 ```
 
+## 1.4 Estimates of Variability
+
+> p.18
+
+### R
+
+```{r}
+# state$Population %>% sd()
+sd(state[['Population']])
+IQR(state[['Population']])
+mad(state[['Population']])
+```
+
+### Py
+
+```{python}
+print(state.head(8))
+
+# Standard deviation
+
+print(state['Population'].std())
+
+# Interquartile range is calculated as the difference of the 75% and 25% quantile.
+
+print(state['Population'].quantile(0.75) - state['Population'].quantile(0.25))
+
+# Median absolute deviation from the median can be calculated with a method in _statsmodels_
+print(state['Population'].mean())
+print(state['Population'].median())
+print(robust.scale.mad(state['Population']))
+# print(abs(state['Population'] - state['Population'].median()).median() / 0.6744897501960817)
+
+```
+
