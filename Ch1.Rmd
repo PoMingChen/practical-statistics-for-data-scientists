@@ -139,3 +139,77 @@ print(robust.scale.mad(state['Population']))
 
 ```
 
+## 1.5 Exploring the Data Distribution
+
+> p.20
+
+### R
+
+```{r}
+quantile(state[['Murder.Rate']], p=c(.05, .25, .5, .75, .95))
+
+boxplot(state[['Population']]/1000000, ylab='Population (millions)')
+```
+
+```{r Frequency Tables and Histograms}
+breaks <- seq(from=min(state[['Population']]), 
+              to=max(state[['Population']]), length=11)
+pop_freq <- cut(state[['Population']], breaks=breaks, 
+                right=TRUE, include.lowest=TRUE)
+state['PopFreq'] <- pop_freq
+table(pop_freq)
+
+options(scipen=5)
+#integer. A penalty to be applied when deciding to print numeric values in fixed or exponential notation. Positive values bias towards fixed and negative towards scientific notation: fixed notation will be preferred unless it is more than scipen digits wider.
+hist(state[['Population']], breaks=breaks)
+```
+
+### Py
+
+```{python}
+# _Pandas_ has the `quantile` method for data frames.
+
+print(state['Murder.Rate'].quantile([0.05, 0.25, 0.5, 0.75, 0.95]))
+
+# _Pandas_ provides a number of basic exploratory plots; one of them are boxplots
+
+ax = (state['Population']/1_000_000).plot.box(figsize=(3, 4))
+ax.set_ylabel('Population (millions)')
+
+plt.tight_layout()
+plt.show()
+```
+
+```{python Frequency Tables and Histograms}
+# The `cut` method for _pandas_ data splits the dataset into bins. There are a number of arguments for the method. The following code creates equal sized bins. The method `value_counts` returns a frequency table.
+
+binnedPopulation = pd.cut(state['Population'], 10) #cut into 10 bins
+print(binnedPopulation.value_counts())
+```
+
+```{python Frequency Tables and Histograms}
+binnedPopulation.name = 'binnedPopulation'
+df = pd.concat([state, binnedPopulation], axis=1)
+df = df.sort_values(by='Population')
+df
+groups = []
+for group, subset in df.groupby(by='binnedPopulation'):
+    groups.append({
+        'BinRange': group,
+        'Count': len(subset),
+        'States': ','.join(subset.Abbreviation)
+    })
+print(pd.DataFrame(groups))
+```
+
+```{python}
+# _Pandas_ also supports histograms for exploratory data analysis.
+#With DataFrame.plot.hist method.
+ax = (state['Population'] / 1_000_000).plot.hist(figsize=(4, 4))
+ax.set_xlabel('Population (millions)')
+# plt.close("all") #clear out all the graph and reset to an empty white background.
+plt.tight_layout()
+plt.show()
+```
+
+
