@@ -1,0 +1,24 @@
+"0","reticulate::repl_python()"
+"2","Python 3.9.2 (/Users/chenpoming/opt/anaconda3/envs/r-reticulate/bin/python)
+Reticulate 1.24 REPL -- A Python interpreter in R.
+Enter 'exit' or 'quit' to exit the REPL and return to R.
+"
+"0","# The `cut` method for _pandas_ data splits the dataset into bins. There are a number of arguments for the method. The following code creates equal sized bins. The method `value_counts` returns a frequency table."
+"0",""
+"0","binnedPopulation = pd.cut(state['Population'], 10) #cut into 10 bins"
+"0","print(binnedPopulation.value_counts())"
+"1","(526935.67, 4232659.0]      24
+(4232659.0, 7901692.0]      14
+(7901692.0, 11570725.0]      6
+(11570725.0, 15239758.0]     2
+(15239758.0, 18908791.0]     1
+(18908791.0, 22577824.0]     1
+(22577824.0, 26246857.0]     1
+(33584923.0, 37253956.0]     1
+(26246857.0, 29915890.0]     0
+(29915890.0, 33584923.0]     0
+Name: Population, dtype: int64
+"
+"0","binnedPopulation.name = 'binnedPopulation'"
+"0","df = pd.concat([state, binnedPopulation], axis=1)"
+"0","df = df.sort_values(by='Population')"
