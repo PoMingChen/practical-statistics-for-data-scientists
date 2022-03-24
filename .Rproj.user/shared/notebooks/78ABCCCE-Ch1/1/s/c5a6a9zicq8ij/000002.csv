@@ -1,0 +1,4 @@
+"0","print(wquantiles.median(state['Murder.Rate'], weights=state['Population']))
+"
+"1","4.4
+"

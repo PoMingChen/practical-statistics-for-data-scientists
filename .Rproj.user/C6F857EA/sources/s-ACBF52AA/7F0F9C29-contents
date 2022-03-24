@@ -1,0 +1,107 @@
+---
+title: "Ch1"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Environment
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(vioplot)
+library(corrplot)
+library(gmodels)
+library(matrixStats)
+library(reticulate)
+# conda_install("r-reticulate", "wquantiles") #for python code execution
+# conda_install("r-reticulate", "statsmodels") #for python code execution
+```
+
+```{python}
+from pathlib import Path
+
+import pandas as pd
+import numpy as np
+from scipy.stats import trim_mean
+from statsmodels import robust
+import wquantiles
+
+import seaborn as sns
+import matplotlib.pylab as plt
+
+try:
+    import common
+    DATA = common.dataDirectory()
+except ImportError:
+    DATA = Path().resolve() / 'data'
+
+# Define paths to data sets. If you don't keep your data in the same directory as the code, adapt the path names.
+
+# AIRLINE_STATS_CSV = DATA / 'airline_stats.csv'
+# KC_TAX_CSV = DATA / 'kc_tax.csv.gz'
+# LC_LOANS_CSV = DATA / 'lc_loans.csv'
+# AIRPORT_DELAYS_CSV = DATA / 'dfw_airline.csv'
+# SP500_DATA_CSV = DATA / 'sp500_data.csv.gz'
+# SP500_SECTORS_CSV = DATA / 'sp500_sectors.csv'
+STATE_CSV = DATA / 'state.csv'
+```
+
+## 1.3 Estimates of Location
+
+> p.12
+
+### R
+
+```{r}
+PSDS_PATH <- file.path((getwd())) #Adjust the syntax to get the specific file path.
+PSDS_PATH 
+state <- read.csv(file.path(PSDS_PATH, 'data', 'state.csv'))
+state
+```
+
+```{r}
+state %>% class()
+state_asc <- state
+#Change the format of numbers, e.g. 10000 -> 10,000
+state_asc[['Population']] <- formatC(state_asc[['Population']], format='d', digits=0, big.mark=',') 
+state_asc[1:8,]
+
+mean(state[['Population']])
+mean(state[['Population']], trim=0.1)
+median(state[['Population']])
+
+mean(state[['Murder.Rate']])
+weighted.mean(state[['Murder.Rate']], w=state[['Population']])
+# library('matrixStats')
+weightedMedian(state[['Murder.Rate']], w=state[['Population']])
+```
+
+### Py
+
+```{python}
+state = pd.read_csv(STATE_CSV)
+print(state.head(8))
+
+# Compute the mean, trimmed mean, and median for Population. For `mean` and `median` we can use the _pandas_ methods of the data frame. The trimmed mean requires the `trim_mean` function in _scipy.stats_.
+
+state = pd.read_csv(STATE_CSV)
+state.__class__
+print(state['Population'].mean())
+
+print(trim_mean(state['Population'], 0.1))
+
+print(state['Population'].median())
+
+# Weighted mean is available with numpy. For weighted median, we can use the specialised package `wquantiles` (https://pypi.org/project/wquantiles/).
+
+print(state['Murder.Rate'].mean())
+print(np.average(state['Murder.Rate'], weights=state['Population']))
+print(wquantiles.median(state['Murder.Rate'], weights=state['Population']))
+
+```
+
