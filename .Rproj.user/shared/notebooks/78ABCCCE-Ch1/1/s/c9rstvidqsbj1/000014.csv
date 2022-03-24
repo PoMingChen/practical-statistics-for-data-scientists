@@ -1,0 +1,4 @@
+"0","# Density is an alternative to histograms that can provide more insight into the distribution of the data points."
+"0",""
+"0","#freq=FALSE, probability densities, component density, are plotted (so that the histogram has a total area of one). Defaults to TRUE if and only if breaks are equidistant（等距離） (and probability is not specified)."
+"0","hist(state[['Murder.Rate']], freq=F)"

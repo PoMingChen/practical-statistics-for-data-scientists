@@ -1,0 +1,2 @@
+"0","lines(density(state[['Murder.Rate']]), lwd=3, col='blue')"
+"0",""

@@ -164,6 +164,16 @@ options(scipen=5)
 hist(state[['Population']], breaks=breaks)
 ```
 
+```{r Density Estimates}
+# Density is an alternative to histograms that can provide more insight into the distribution of the data points.
+
+#freq=FALSE, probability densities, component density, are plotted (so that the histogram has a total area of one). Defaults to TRUE if and only if breaks are equidistant（等距離） (and probability is not specified).
+hist(state[['Murder.Rate']], freq=F)
+lines(density(state[['Murder.Rate']]), lwd=3, col='blue')
+
+```
+
+
 ### Py
 
 ```{python}
@@ -180,14 +190,14 @@ plt.tight_layout()
 plt.show()
 ```
 
-```{python Frequency Tables and Histograms}
+```{python Frequency Tables and Histograms1}
 # The `cut` method for _pandas_ data splits the dataset into bins. There are a number of arguments for the method. The following code creates equal sized bins. The method `value_counts` returns a frequency table.
 
 binnedPopulation = pd.cut(state['Population'], 10) #cut into 10 bins
 print(binnedPopulation.value_counts())
 ```
 
-```{python Frequency Tables and Histograms}
+```{python Frequency Tables and Histograms2}
 binnedPopulation.name = 'binnedPopulation'
 df = pd.concat([state, binnedPopulation], axis=1)
 df = df.sort_values(by='Population')
@@ -202,7 +212,7 @@ for group, subset in df.groupby(by='binnedPopulation'):
 print(pd.DataFrame(groups))
 ```
 
-```{python}
+```{python Frequency Tables and Histograms3}
 # _Pandas_ also supports histograms for exploratory data analysis.
 #With DataFrame.plot.hist method.
 ax = (state['Population'] / 1_000_000).plot.hist(figsize=(4, 4))
@@ -212,4 +222,18 @@ plt.tight_layout()
 plt.show()
 ```
 
+```{python Density Estimates}
+# Density is an alternative to histograms that can provide more insight into the distribution of the data points. Use the argument `bw_method` to control the smoothness of the density curve.
+
+#Pandas provides the density method: With DataFrame.plot.density method.
+plt.close("all")
+ax = state['Murder.Rate'].plot.hist(density=True, xlim=[0, 12], 
+                                    bins=range(1,12),
+                                    figsize=(4, 4))
+state['Murder.Rate'].plot.density(ax=ax)
+ax.set_xlabel('Murder Rate (per 100,000)')
+
+plt.tight_layout()
+plt.show()
+```
 

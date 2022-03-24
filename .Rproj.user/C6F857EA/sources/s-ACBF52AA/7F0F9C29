@@ -3,7 +3,7 @@
     "path": "~/GitHub/practical-statistics-for-data-scientists/Ch1.Rmd",
     "project_path": "Ch1.Rmd",
     "type": "r_markdown",
-    "hash": "541270728",
+    "hash": "0",
     "contents": "",
     "dirty": false,
     "created": 1648083746617.0,
@@ -13,17 +13,18 @@
         "tempName": "Untitled1",
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "209,83",
-        "scrollLine": "198",
+        "cursorPosition": "227,37",
+        "scrollLine": "204",
         "docOutlineVisible": "1",
-        "last_setup_crc32": "ACBF52AAbb338d19"
+        "last_setup_crc32": "ACBF52AAbb338d19",
+        "docOutlineSize": "96"
     },
     "folds": "",
-    "lastKnownWriteTime": 1648091445,
+    "lastKnownWriteTime": 1648092740,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1648091445151,
+    "last_content_update": 1648092740760,
     "read_only": false,
     "read_only_alternatives": []
 }
