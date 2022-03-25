@@ -1,0 +1,1 @@
+"0","plot(telecom$T, telecom$VZ, xlab='ATT (T)', ylab='Verizon (VZ)')"

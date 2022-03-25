@@ -1,0 +1,2 @@
+"0","# plot(telecom$T, telecom$VZ, xlab='T', ylab='VZ', cex=.8)"
+"0","telecom"

@@ -1,0 +1,22 @@
+"0","reticulate::repl_python()"
+"2","Python 3.9.2 (/Users/chenpoming/opt/anaconda3/envs/r-reticulate/bin/python)
+Reticulate 1.24 REPL -- A Python interpreter in R.
+Enter 'exit' or 'quit' to exit the REPL and return to R.
+"
+"0","# Simple scatterplots are supported by _pandas_. Specifying the marker as `$\u25EF$` uses an open circle for each point."
+"0",""
+"0","ax = telecom.plot.scatter(x='T', y='VZ', figsize=(4, 4), marker='$\u25EF$')"
+"0","ax.set_xlabel('ATT (T)')"
+"1","Text(0.5, 0, 'ATT (T)')
+"
+"0","ax.set_ylabel('Verizon (VZ)')"
+"1","Text(0, 0.5, 'Verizon (VZ)')
+"
+"0","ax.axhline(0, color='grey', lw=1)"
+"1","<matplotlib.lines.Line2D object at 0x14a101910>
+"
+"0","ax.axvline(0, color='grey', lw=1)"
+"1","<matplotlib.lines.Line2D object at 0x14a429e80>
+"
+"0","plt.tight_layout()"
+"0","plt.show()"
