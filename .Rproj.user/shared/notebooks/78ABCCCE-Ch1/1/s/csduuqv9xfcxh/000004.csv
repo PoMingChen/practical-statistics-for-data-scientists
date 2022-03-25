@@ -1,0 +1,19 @@
+"0","reticulate::repl_python()"
+"2","Python 3.9.2 (/Users/chenpoming/opt/anaconda3/envs/r-reticulate/bin/python)
+Reticulate 1.24 REPL -- A Python interpreter in R.
+Enter 'exit' or 'quit' to exit the REPL and return to R.
+"
+"0","# The _seaborn_ kdeplot is a two-dimensional extension of the density plot. The calculation of the 2D-density for the full dataset takes several minutes. It is sufficient to create the visualization with a smaller sample of the dataset. With 10,000 data points, creating the graph takes only seconds. While some details may be lost, the overall shape is preserved."
+"0",""
+"0","fig, ax = plt.subplots(figsize=(4, 4))"
+"0","sns.kdeplot(data=kc_tax0.sample(10000), x='SqFtTotLiving', y='TaxAssessedValue', ax=ax)"
+"1","<AxesSubplot:xlabel='SqFtTotLiving', ylabel='TaxAssessedValue'>
+"
+"0","ax.set_xlabel('Finished Square Feet')"
+"1","Text(0.5, 0, 'Finished Square Feet')
+"
+"0","ax.set_ylabel('Tax Assessed Value')"
+"1","Text(0, 0.5, 'Tax Assessed Value')
+"
+"0","plt.tight_layout()"
+"0","plt.show()"

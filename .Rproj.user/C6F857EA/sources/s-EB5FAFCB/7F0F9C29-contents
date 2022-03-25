@@ -371,6 +371,95 @@ plt.tight_layout()
 plt.show()
 ```
 
+## 1.8 Exploring Two or More Variables
+
+### R
+
+```{r kc_tax1}
+PSDS_PATH <- file.path((getwd())) 
+kc_tax <- read.csv(file.path(PSDS_PATH, 'data', 'kc_tax.csv.gz'))
+
+
+kc_tax0 <- subset(kc_tax, TaxAssessedValue < 750000 & 
+                  SqFtTotLiving > 100 &
+                  SqFtTotLiving < 3500)
+nrow(kc_tax0)
+kc_tax0 |> head()
+```
+
+```{r kc_tax_hex1}
+# If the number of data points gets large, scatter plots will no longer be meaningful. Here methods that visualize densities are more useful. The `stat_hexbin` method for is one powerful approach.
+
+graph <- ggplot2::ggplot(kc_tax0, (aes(x=SqFtTotLiving, y=TaxAssessedValue))) + 
+  stat_binhex(color='white') + 
+  theme_bw() + 
+  scale_fill_gradient(low='white', high='blue') +
+  scale_y_continuous(labels = function(x) format(x, scientific = FALSE)) +
+  labs(x='Finished Square Feet', y='Tax-Assessed Value')
+graph
+```
+
+```{r kc_tax_hex_2}
+library(tidyverse)
+kc_tax0 %>% ggplot(aes(x=SqFtTotLiving, y=TaxAssessedValue)) + geom_hex(color = "white") + #color = "white" makes the graph more vivid.
+theme_bw() + 
+scale_fill_gradient(low='white', high='blue') +
+scale_y_continuous(labels = function(x) format(x, scientific = FALSE)) +
+labs(x='Finished Square Feet', y='Tax-Assessed Value')
+```
+
+```{r kc_tx_Contour}
+# Visualize as a two-dimensional extension of the density plot.
+
+graph <- ggplot(kc_tax0, aes(SqFtTotLiving, TaxAssessedValue)) +
+  theme_bw() + 
+  geom_point(color='blue', alpha=0.1) + 
+  geom_density2d(color='white') + 
+  scale_y_continuous(labels = function(x) format(x, scientific = FALSE)) +
+  labs(x='Finished Square Feet', y='Tax-Assessed Value')
+graph
+```
+
+
+### Py
+
+```{python kc_tax}
+
+KC_TAX_CSV = DATA / 'kc_tax.csv.gz'
+
+kc_tax = pd.read_csv(KC_TAX_CSV)
+kc_tax.head(6)
+kc_tax0 = kc_tax.loc[(kc_tax.TaxAssessedValue < 750000) & 
+                     (kc_tax.SqFtTotLiving > 100) &
+                     (kc_tax.SqFtTotLiving < 3500), :]
+                     
+print(kc_tax0.shape)
+```
+
+```{python kc_tax_hex}
+# If the number of data points gets large, scatter plots will no longer be meaningful. Here methods that visualize densities are more useful. The `hexbin` method for _pandas_ data frames is one powerful approach.
+
+ax = kc_tax0.plot.hexbin(x='SqFtTotLiving', y='TaxAssessedValue',
+                         gridsize=30, sharex=False, figsize=(5, 4))
+ax.set_xlabel('Finished Square Feet')
+ax.set_ylabel('Tax Assessed Value')
+
+plt.tight_layout()
+plt.show()
+```
+
+```{python kx_tax_Contour}
+# The _seaborn_ kdeplot is a two-dimensional extension of the density plot. The calculation of the 2D-density for the full dataset takes several minutes. It is sufficient to create the visualization with a smaller sample of the dataset. With 10,000 data points, creating the graph takes only seconds. While some details may be lost, the overall shape is preserved.
+
+fig, ax = plt.subplots(figsize=(4, 4))
+sns.kdeplot(data=kc_tax0.sample(10000), x='SqFtTotLiving', y='TaxAssessedValue', ax=ax)
+ax.set_xlabel('Finished Square Feet')
+ax.set_ylabel('Tax Assessed Value')
+
+plt.tight_layout()
+plt.show()
+```
+
 
 
 
