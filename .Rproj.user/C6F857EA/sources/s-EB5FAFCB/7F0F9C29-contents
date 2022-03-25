@@ -237,3 +237,63 @@ plt.tight_layout()
 plt.show()
 ```
 
+## 1.6 Exploring Binary or Categorical Data
+
+> P. 27
+
+### R
+
+```{r}
+PSDS_PATH <- file.path((getwd())) 
+dfw <- read.csv(file.path(PSDS_PATH, 'data', 'dfw_airline.csv'))
+dfw
+```
+
+```{r}
+barplot(as.matrix(dfw) / 6, cex.axis=0.8, cex.names=0.7, 
+        xlab='Cause of delay', ylab='Count')
+```
+
+### Py
+
+```{python}
+AIRPORT_DELAYS_CSV = DATA / 'dfw_airline.csv'
+AIRPORT_DELAYS_CSV 
+dfw = pd.read_csv(AIRPORT_DELAYS_CSV)
+dfw
+print(100 * dfw / dfw.values.sum())
+```
+
+```{python}
+# _Pandas_ also supports bar charts for displaying a single categorical variable.
+
+# dfw.transpose(), transpose the structure
+ax = dfw.transpose().plot.bar(figsize=(4, 4), legend=False)
+ax.set_xlabel('Cause of delay')
+ax.set_ylabel('Count')
+
+plt.tight_layout()
+plt.show()
+```
+
+## 1.7 Correlation
+
+```{r telecom}
+sp500_px <- read.csv(file.path(PSDS_PATH, 'data', 'sp500_data.csv.gz'), row.names=1)
+sp500_sym <- read.csv(file.path(PSDS_PATH, 'data', 'sp500_sectors.csv'), stringsAsFactors = FALSE)
+
+sp500_sym
+sp500_px
+
+# sp500_sym[sp500_sym$sector == 'telecommunications_services',]
+# sp500_sym[sp500_sym$sector == 'telecommunications_services', "symbol"] return a single vector.
+
+telecom <- sp500_px[, sp500_sym[sp500_sym$sector == 'telecommunications_services', "symbol"]]
+telecom
+telecom <- telecom[row.names(telecom) > '2012-07-01',]
+telecom
+telecom_cor <- cor(telecom)
+telecom_cor
+```
+
+

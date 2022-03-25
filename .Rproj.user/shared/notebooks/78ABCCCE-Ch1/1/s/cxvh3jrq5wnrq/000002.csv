@@ -1,0 +1,18 @@
+"0","reticulate::repl_python()"
+"2","Python 3.9.2 (/Users/chenpoming/opt/anaconda3/envs/r-reticulate/bin/python)
+Reticulate 1.24 REPL -- A Python interpreter in R.
+Enter 'exit' or 'quit' to exit the REPL and return to R.
+"
+"0","AIRPORT_DELAYS_CSV = DATA / 'dfw_airline.csv'"
+"0","AIRPORT_DELAYS_CSV "
+"1","PosixPath('/Users/chenpoming/GitHub/practical-statistics-for-data-scientists/data/dfw_airline.csv')
+"
+"0","dfw = pd.read_csv(AIRPORT_DELAYS_CSV)"
+"0","dfw"
+"1","    Carrier      ATC   Weather  Security    Inbound
+0  64263.16  84856.5  11235.42    343.15  118427.82
+"
+"0","print(100 * dfw / dfw.values.sum())"
+"1","     Carrier        ATC   Weather  Security    Inbound
+0  23.022989  30.400781  4.025214  0.122937  42.428079
+"
