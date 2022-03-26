@@ -42,10 +42,10 @@ except ImportError:
 
 # Define paths to data sets. If you don't keep your data in the same directory as the code, adapt the path names.
 
-# AIRLINE_STATS_CSV = DATA / 'airline_stats.csv'
-# KC_TAX_CSV = DATA / 'kc_tax.csv.gz'
-# LC_LOANS_CSV = DATA / 'lc_loans.csv'
-# AIRPORT_DELAYS_CSV = DATA / 'dfw_airline.csv'
+AIRLINE_STATS_CSV = DATA / 'airline_stats.csv'
+KC_TAX_CSV = DATA / 'kc_tax.csv.gz'
+LC_LOANS_CSV = DATA / 'lc_loans.csv'
+AIRPORT_DELAYS_CSV = DATA / 'dfw_airline.csv'
 # SP500_DATA_CSV = DATA / 'sp500_data.csv.gz'
 # SP500_SECTORS_CSV = DATA / 'sp500_sectors.csv'
 STATE_CSV = DATA / 'state.csv'
@@ -419,6 +419,55 @@ graph <- ggplot(kc_tax0, aes(SqFtTotLiving, TaxAssessedValue)) +
   labs(x='Finished Square Feet', y='Tax-Assessed Value')
 graph
 ```
+```{r lc_loans}
+lc_loans <- read.csv(file.path(PSDS_PATH, 'data', 'lc_loans.csv'))
+library(descr)
+x_tab <- CrossTable(lc_loans$grade, lc_loans$status, 
+                    prop.c=FALSE, prop.chisq=FALSE, prop.t=FALSE)
+
+x_tab
+```
+
+```{r flight}
+
+airline_stats <- read.csv(file.path(PSDS_PATH, 'data', 'airline_stats.csv'), stringsAsFactors = FALSE)
+
+airline_stats
+
+# Boxplots of a column can be grouped by a different column.
+boxplot(pct_carrier_delay ~ airline,
+        data=airline_stats,
+        ylim=c(0, 50), 
+        cex.axis=.6,
+        ylab='Daily % of Delayed Flights')
+```
+
+```{r violin_plot}
+# Variation of boxplots called _violinplot_.
+library(ggplot2)
+graph <- ggplot(data=airline_stats, aes(airline, pct_carrier_delay)) + 
+  ylim(0, 50) + 
+  geom_violin(draw_quantiles = c(.25,.5,.75), linetype=2) +
+  geom_violin(fill=NA, size=1.1) +
+  labs(x='', y='Daily % of Delayed Flights') +
+  theme_bw()
+graph
+```
+
+```{r facet}
+### Visualizing Multiple Variables
+
+graph <- ggplot(subset(kc_tax0, ZipCode %in% c(98188, 98105, 98108, 98126)),
+                aes(x=SqFtTotLiving, y=TaxAssessedValue)) + 
+  stat_binhex(colour='white') + 
+  theme_bw() + 
+  scale_fill_gradient(low='gray95', high='black') +
+  scale_y_continuous(labels = function(x) format(x, scientific = FALSE)) +
+  labs(x='Finished Square Feet', y='Tax-Assessed Value') +
+  facet_wrap('ZipCode')
+graph
+```
+
 
 
 ### Py
@@ -460,6 +509,75 @@ plt.tight_layout()
 plt.show()
 ```
 
+```{python lc_loans}
+lc_loans = pd.read_csv(LC_LOANS_CSV)
 
+# Table 1-8(1)
+crosstab = lc_loans.pivot_table(index='grade', columns='status', 
+                                aggfunc=lambda x: len(x), margins=True)
+print(crosstab)
+
+# Table 1-8(2)
+df = crosstab.copy().loc['A':'G',:] #create a copy of the pivot table, ignoring the column sums.
+df
+df.loc[:,'Charged Off':'Late'] = df.loc[:,'Charged Off':'Late'].div(df['All'], axis=0)
+df
+df['All'] = df['All'] / sum(df['All'])
+df
+perc_crosstab = df
+print(perc_crosstab)
+```
+
+```{python flight}
+# _Pandas_ boxplots of a column can be grouped by a different column.
+
+airline_stats = pd.read_csv(AIRLINE_STATS_CSV)
+airline_stats.head()
+ax = airline_stats.boxplot(by='airline', column='pct_carrier_delay',
+                           figsize=(5, 5))
+ax.set_xlabel('')
+ax.set_ylabel('Daily % of Delayed Flights')
+plt.suptitle('')
+
+plt.tight_layout()
+plt.show()
+```
+```{python violin_plot}
+
+# _Pandas_ also supports a variation of boxplots called _violinplot_.
+#Violin plots are available with the violinplot method of the seaborn package
+
+fig, ax = plt.subplots(figsize=(5, 5))
+sns.violinplot(data=airline_stats, x='airline', y='pct_carrier_delay',
+               ax=ax, inner='quartile', color='white')
+ax.set_xlabel('')
+ax.set_ylabel('Daily % of Delayed Flights')
+
+plt.tight_layout()
+plt.show()
+```
+
+```{python facet}
+### Visualizing Multiple Variables
+### It will be last complicated with leveraging seaborn
+
+zip_codes = [98188, 98105, 98108, 98126]
+kc_tax_zip = kc_tax0.loc[kc_tax0.ZipCode.isin(zip_codes),:]
+kc_tax_zip
+
+def hexbin(x, y, color, **kwargs):
+    cmap = sns.light_palette(color, as_cmap=True)
+    plt.hexbin(x, y, gridsize=25, cmap=cmap, **kwargs)
+
+g = sns.FacetGrid(kc_tax_zip, col='ZipCode', col_wrap=2)
+g.map(hexbin, 'SqFtTotLiving', 'TaxAssessedValue', 
+      extent=[0, 3500, 0, 700000])
+g.set_axis_labels('Finished Square Feet', 'Tax Assessed Value')
+g.set_titles('Zip code {col_name:.0f}')
+
+plt.tight_layout()
+plt.show()
+
+```
 
 

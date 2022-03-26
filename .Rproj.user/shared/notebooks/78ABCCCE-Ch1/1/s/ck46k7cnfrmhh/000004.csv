@@ -1,0 +1,7 @@
+"0",""
+"0","# Boxplots of a column can be grouped by a different column."
+"0","boxplot(pct_carrier_delay ~ airline,"
+"0","        data=airline_stats,"
+"0","        ylim=c(0, 50), "
+"0","        cex.axis=.6,"
+"0","        ylab='Daily % of Delayed Flights')"
