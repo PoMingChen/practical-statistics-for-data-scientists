@@ -1,0 +1,4 @@
+"0","LOANS_INCOME_CSV = DATA / 'loans_income.csv'
+"
+"2","NameError: name 'DATA' is not defined
+"

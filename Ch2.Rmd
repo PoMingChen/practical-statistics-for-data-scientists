@@ -1,0 +1,126 @@
+---
+title: "Ch2"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Environment
+
+```{r}
+library(boot)
+library(ggplot2)
+library(reticulate)
+
+PSDS_PATH <- file.path((getwd()))
+PSDS_PATH
+loans_income <- read.csv(file.path(PSDS_PATH, 'data', 'loans_income.csv'))
+loans_income <- loans_income[, 1]   # convert data frame to vector
+loans_income
+sp500_px <- read.csv(file.path(PSDS_PATH, 'data', 'sp500_data.csv.gz'), row.names=1)
+
+# conda_install("r-reticulate", "sklearn"), not work...check next line.
+conda_install("r-reticulate", "sklearn", pip = T) #for python code execution
+```
+
+```{python}
+from pathlib import Path
+import pandas as pd
+import numpy as np
+from scipy import stats
+import sklearn
+from sklearn.utils import resample
+
+import seaborn as sns
+import matplotlib.pylab as plt
+
+try:
+    import common
+    DATA = common.dataDirectory()
+except ImportError:
+    DATA = Path().resolve() / 'data'
+
+# Define paths to data sets. If you don't keep your data in the same directory as the code, adapt the path names.
+
+LOANS_INCOME_CSV = DATA / 'loans_income.csv'
+SP500_DATA_CSV = DATA / 'sp500_data.csv.gz'
+```
+
+
+
+## 2.1 Random Sampling and Sample Bias
+
+## 2.2 Seletion Bias
+
+## 2.3 Sampling Distribution of a Statistic
+
+### R
+
+```{r sampling_dist}
+samp_data <- data.frame(income=sample(loans_income, 1000), 
+                        type='data_dist')
+samp_data
+
+# take a sample of means of 5 values
+samp_mean_05 <- data.frame(
+  income = tapply(sample(loans_income, 1000*5), 
+                  rep(1:1000, rep(5, 1000)), FUN=mean),
+  type = 'mean_of_5')
+
+samp_mean_05
+
+# take a sample of means of 20 values
+samp_mean_20 <- data.frame(
+  income = tapply(sample(loans_income, 1000*20), 
+                  rep(1:1000, rep(20, 1000)), FUN=mean),
+  type = 'mean_of_20')
+
+samp_mean_20
+
+# bind the data.frames and convert type to a factor
+income <- rbind(samp_data, samp_mean_05, samp_mean_20)
+income$type <- factor(income$type, 
+                     levels=c('data_dist', 'mean_of_5', 'mean_of_20'),
+                     labels=c('Data', 'Mean of 5', 'Mean of 20'))
+
+ggplot(income, aes(x=income)) +
+  geom_histogram(bins=40) +
+  facet_grid(type ~ .)
+```
+
+### Py
+
+```{python sampling_dist}
+loans_income = pd.read_csv(LOANS_INCOME_CSV, squeeze=True)
+
+#First time to see the syntax as "for _ in range(1000)" in Dict. comprehension.
+sample_data = pd.DataFrame({
+    'income': loans_income.sample(1000),
+    'type': 'Data',
+})
+
+sample_mean_05 = pd.DataFrame({
+    'income': [loans_income.sample(5).mean() for _ in range(1000)],
+    'type': 'Mean of 5',
+})
+
+sample_mean_20 = pd.DataFrame({
+    'income': [loans_income.sample(20).mean() for _ in range(1000)],
+    'type': 'Mean of 20',
+})
+
+results = pd.concat([sample_data, sample_mean_05, sample_mean_20])
+print(results.head())
+
+g = sns.FacetGrid(results, col='type', col_wrap=1, 
+                  height=2, aspect=2)
+g.map(plt.hist, 'income', range=[0, 200000], bins=40)
+g.set_axis_labels('Income', 'Count')
+g.set_titles('{col_name}')
+
+plt.tight_layout()
+plt.show()
+```
+
