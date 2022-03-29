@@ -1,0 +1,75 @@
+"0","reticulate::repl_python()"
+"2","Python 3.9.2 (/Users/chenpoming/opt/anaconda3/envs/r-reticulate/bin/python)
+Reticulate 1.24 REPL -- A Python interpreter in R.
+Enter 'exit' or 'quit' to exit the REPL and return to R.
+"
+"0","np.random.seed(seed=3)"
+"0","# create a sample of 20 loan income data"
+"0","sample20 = resample(loans_income, n_samples=20, replace=False)"
+"0",""
+"0","results = []"
+"0","for nrepeat in range(500):"
+"0","    sample = resample(sample20)"
+"0","    results.append(sample.mean())"
+"0","results = pd.Series(results)"
+"0",""
+"0","confidence_interval = list(results.quantile([0.05, 0.95]))"
+"0","ax = results.plot.hist(bins=30, figsize=(4, 3), color='C1')"
+"0","ax.plot(confidence_interval, [55, 55], color='black', linestyle='--')"
+"1","[<matplotlib.lines.Line2D object at 0x13b87c250>]
+"
+"0","for x in confidence_interval:"
+"0","    ax.plot([x, x], [0, 60], color='black')"
+"0","ax.text(82000, 50, "
+"1","[<matplotlib.lines.Line2D object at 0x13b87cbe0>]
+[<matplotlib.lines.Line2D object at 0x13b8c0be0>]
+"
+"0","        f'90% CI\n[{confidence_interval[0]:.0f}, {confidence_interval[1]:.0f}]',"
+"0","       fontsize='small')"
+"1","Text(82000, 50, '90% CI\n[43212, 70233]')
+"
+"0","confidence_interval = list(results.quantile([0.025, 0.975]))"
+"0","ax = results.plot.hist(bins=30, figsize=(4, 3))"
+"0","ax.plot(confidence_interval, [65, 65], color='black', linestyle='--')"
+"1","[<matplotlib.lines.Line2D object at 0x13b8cf3d0>]
+"
+"0","for x in confidence_interval:"
+"0","    ax.plot([x, x], [0, 70], color='black')"
+"0","ax.text(82000, 65, "
+"1","[<matplotlib.lines.Line2D object at 0x13b8cf670>]
+[<matplotlib.lines.Line2D object at 0x13b90c640>]
+"
+"0","        f'95% CI\n[{confidence_interval[0]:.0f}, {confidence_interval[1]:.0f}]',"
+"0","       fontsize='small')"
+"1","Text(82000, 65, '95% CI\n[41262, 72894]')
+"
+"0","# ax.text(sum(confidence_interval) / 2, 264, '95 % interval',"
+"0","#         horizontalalignment='center', verticalalignment='center')"
+"0",""
+"0","meanIncome = results.mean()"
+"0","meanIncome"
+"1","55835.849599999994
+"
+"0","ax.plot([meanIncome, meanIncome], [0, 50], color='black', linestyle='--')"
+"1","[<matplotlib.lines.Line2D object at 0x13b860df0>]
+"
+"0","ax.text(meanIncome, 5, f'Mean: {meanIncome:.0f}',"
+"0","        bbox=dict(facecolor='white', edgecolor='white', alpha=0.5),"
+"0","        horizontalalignment='center', verticalalignment='center')"
+"1","Text(55835.849599999994, 5, 'Mean: 55836')
+"
+"0","ax.set_ylim(0, 80)"
+"1","(0.0, 80.0)
+"
+"0","ax.set_xlim(37000, 102000)"
+"1","(37000.0, 102000.0)
+"
+"0","ax.set_xticks([40000, 50000, 60000, 70000, 80000])"
+"1","[<matplotlib.axis.XTick object at 0x13b790cd0>, <matplotlib.axis.XTick object at 0x13b790700>, <matplotlib.axis.XTick object at 0x13b7c5d00>, <matplotlib.axis.XTick object at 0x13b80c0a0>, <matplotlib.axis.XTick object at 0x13b80c460>]
+"
+"0","ax.set_ylabel('Counts')"
+"1","Text(80.52268606072496, 0.5, 'Counts')
+"
+"0","# plt.clf()"
+"0","plt.tight_layout()"
+"0","plt.show()"

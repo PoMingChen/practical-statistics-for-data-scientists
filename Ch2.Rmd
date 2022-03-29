@@ -124,3 +124,182 @@ plt.tight_layout()
 plt.show()
 ```
 
+## 2.4 The Bootstrap
+
+### R
+
+```{r loans}
+# As the calculation uses random samples, results will vary between runs. Consider to have set seeds in necessary.
+
+set.seed(3)
+library(boot)
+stat_fun <- function(x, idx) median(x[idx])
+# loans_income
+boot_obj <- boot(loans_income, R=1000, statistic=stat_fun)
+
+median(loans_income)
+
+#The bias is explained more completely in Python. `results.mean() - loans_income.median()`
+boot_obj
+
+```
+
+### Py
+
+```{python loans}
+results = []
+for nrepeat in range(1000):
+    sample = resample(loans_income)
+    results.append(sample.median())
+results = pd.Series(results)
+results 
+print('Bootstrap Statistics:')
+print(f'original: {loans_income.median()}')
+print(f'bias: {results.mean() - loans_income.median()}')
+print(f'std. error: {results.std()}')
+```
+
+## 2.5 Confidence Interval
+
+### R
+
+```{r loans_CI}
+set.seed(5)
+set.seed(7)
+
+#單一次抽樣，與其樣本（20/50000）
+mean(loans_income) #68760.52
+sample20 <- sample(loans_income, 20)
+sampleMean <- mean(sample20)
+
+#Bootstrap
+#在 loans code chunk，stat_fun 是用 median。
+stat_fun <- function(x, idx) mean(x[idx])
+boot_obj <- boot(sample20, R=500, statistic=stat_fun)
+boot_ci <- boot.ci(boot_obj, conf=0.9, type='basic')
+
+X <- data.frame(mean=boot_obj$t)
+boot_obj$t #length of 500
+mean(boot_obj$t) #results' mean 58377.08
+X #row_numbers = 500
+
+
+boot_ci$basic
+ci90 <- boot_ci$basic[4:5] #get the Interval endpoints
+ci <- data.frame(ci=ci90, y=c(9, 11)) #y=c(9, 11)), handy to be consistent with counts, or y-axis.
+ci
+
+sampleMean #58447.25
+ci #51643.09 65262.95	(51643.09+65262.95)/2 = 58453 一定不會等於 單一次抽樣的
+
+
+library(ggplot2)
+ggplot(X, aes(x=mean)) +
+    geom_histogram(bins=40, fill='#AAAAAA') +
+    geom_vline(xintercept=sampleMean, linetype=1) + #58447.25 sample mean of 20
+    geom_vline(xintercept=mean(boot_obj$t), linetype=2) + #58377.08 result's mean of 20 with Bootstrap process
+    geom_path(aes(x=ci, y=10), data=ci, size=2) +
+    geom_path(aes(x=ci90[1], y=y), data=ci, size=2) +
+    geom_path(aes(x=ci90[2], y=y), data=ci, size=2) +
+    geom_text(aes(x=sampleMean, y=20, label='Sample mean'), size=6) +
+    geom_text(aes(x=sampleMean, y=8, label='90% interval'), size=6) +
+    theme_bw() + 
+    labs(x='', y='Counts')
+```
+### Py
+
+```{python loans_CI}
+## Confidence Intervals
+
+print(loans_income.mean()) #68760.51844
+
+np.random.seed(seed=3)  
+# create a sample of 20 loan income data
+sample20 = resample(loans_income, n_samples=20, replace=False)
+print(sample20.mean()) #55734.1
+```
+
+```{python loans_CI2}
+results = []
+for nrepeat in range(500):
+    sample = resample(sample20)
+    results.append(sample.mean())
+results = pd.Series(results)
+```
+
+```{python loans_CI90}
+confidence_interval = list(results.quantile([0.05, 0.95]))
+
+ax = results.plot.hist(bins=30, figsize=(4, 3))
+ax.plot(confidence_interval, [55, 55], color='black')
+for x in confidence_interval:
+    ax.plot([x, x], [0, 65], color='black')
+    ax.text(x, 70, f'{x:.0f}', 
+            horizontalalignment='center', verticalalignment='center')
+ax.text(sum(confidence_interval) / 2, 60, '90% interval',
+        horizontalalignment='center', verticalalignment='center')
+
+meanIncome = results.mean()
+meanIncome #55836, mean of the mean from Bootstrap process
+# print(sample20.mean()) #55734.1
+# print(loans_income.mean()) #68760.51844
+ax.plot([meanIncome, meanIncome], [0, 50], color='black', linestyle='--')
+ax.text(meanIncome, 10, f'Mean: {meanIncome:.0f}',
+        bbox=dict(facecolor='white', edgecolor='white', alpha=0.5),
+        horizontalalignment='center', verticalalignment='center')
+ax.set_ylim(0, 80)
+ax.set_ylabel('Counts')
+
+# plt.clf()
+
+plt.tight_layout()
+plt.show()
+```
+
+```{python loans_CI95}
+
+np.random.seed(seed=3)
+# create a sample of 20 loan income data
+sample20 = resample(loans_income, n_samples=20, replace=False)
+
+results = []
+for nrepeat in range(500):
+    sample = resample(sample20)
+    results.append(sample.mean())
+results = pd.Series(results)
+
+confidence_interval = list(results.quantile([0.05, 0.95]))
+ax = results.plot.hist(bins=30, figsize=(4, 3), color='C1')
+ax.plot(confidence_interval, [55, 55], color='black', linestyle='--')
+for x in confidence_interval:
+    ax.plot([x, x], [0, 60], color='black')
+ax.text(82000, 50, 
+        f'90% CI\n[{confidence_interval[0]:.0f}, {confidence_interval[1]:.0f}]',
+       fontsize='small')
+
+confidence_interval = list(results.quantile([0.025, 0.975]))
+ax = results.plot.hist(bins=30, figsize=(4, 3))
+ax.plot(confidence_interval, [65, 65], color='black', linestyle='--')
+for x in confidence_interval:
+    ax.plot([x, x], [0, 70], color='black')
+ax.text(82000, 65, 
+        f'95% CI\n[{confidence_interval[0]:.0f}, {confidence_interval[1]:.0f}]',
+       fontsize='small')
+# ax.text(sum(confidence_interval) / 2, 264, '95 % interval',
+#         horizontalalignment='center', verticalalignment='center')
+
+meanIncome = results.mean()
+meanIncome
+ax.plot([meanIncome, meanIncome], [0, 50], color='black', linestyle='--')
+ax.text(meanIncome, 5, f'Mean: {meanIncome:.0f}',
+        bbox=dict(facecolor='white', edgecolor='white', alpha=0.5),
+        horizontalalignment='center', verticalalignment='center')
+ax.set_ylim(0, 80)
+ax.set_xlim(37000, 102000)
+ax.set_xticks([40000, 50000, 60000, 70000, 80000])
+ax.set_ylabel('Counts')
+# plt.clf()
+plt.tight_layout()
+plt.show()
+```
+
