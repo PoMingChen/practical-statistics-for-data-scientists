@@ -22,7 +22,7 @@ loans_income
 sp500_px <- read.csv(file.path(PSDS_PATH, 'data', 'sp500_data.csv.gz'), row.names=1)
 
 # conda_install("r-reticulate", "sklearn"), not work...check next line.
-conda_install("r-reticulate", "sklearn", pip = T) #for python code execution
+# conda_install("r-reticulate", "sklearn", pip = T) #for python code execution
 ```
 
 ```{python}
@@ -301,5 +301,79 @@ ax.set_ylabel('Counts')
 # plt.clf()
 plt.tight_layout()
 plt.show()
+```
+
+## 2.6 Normal Distribution
+
+### R
+
+```{r qqplot}
+set.seed(3)
+norm_samp <- rnorm(100)
+qqnorm(norm_samp, main='', xlab='Quantile of normal distribution', ylab='z-score')
+abline(a=0, b=1, col='grey')
+```
+
+### Py
+
+```{python qqplot}
+### Standard Normal and QQ-Plots
+# The package _scipy_ has the function (`scipy.stats.probplot`) to create QQ-plots. The argument `dist` specifies the distribution, which is set by default to the normal distribution.
+
+fig, ax = plt.subplots(figsize=(4, 4))
+
+norm_sample = stats.norm.rvs(size=100)
+stats.probplot(norm_sample, plot=ax)
+
+plt.tight_layout()
+plt.show()
+```
+
+## 2.7 Long-Tailed Distributions
+
+### R
+
+```{r Long-Tailed}
+nflx <- sp500_px[,'NFLX']
+nflx
+nflx <- diff(log(nflx[nflx>0]))
+qqnorm(nflx)
+abline(a=0, b=1, col='grey')
+```
+### Py
+
+```{python Long-Tailed}
+sp500_px = pd.read_csv(SP500_DATA_CSV)
+
+nflx = sp500_px.NFLX
+nflx = np.diff(np.log(nflx[nflx>0]))
+
+fig, ax = plt.subplots(figsize=(4, 4))
+stats.probplot(nflx, plot=ax)
+
+plt.tight_layout()
+plt.show()
+```
+
+## 2.8 Student's t-Distribution
+
+## 2.9 Binomial Distribution
+
+### R
+
+```{r Binomial}
+dbinom(x=2, size=5, p=0.1)
+
+pbinom(2, 5, 0.1)
+
+dbinom(x=0, size=200, p=0.02)
+```
+
+### Py
+
+```{python}
+print(stats.binom.pmf(2, n=5, p=0.1))
+
+print(stats.binom.cdf(2, n=5, p=0.1))
 ```
 
