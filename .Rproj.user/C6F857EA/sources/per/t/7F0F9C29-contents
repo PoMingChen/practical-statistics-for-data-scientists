@@ -1,0 +1,583 @@
+---
+title: "Ch1"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Environment
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(vioplot)
+library(corrplot)
+library(gmodels)
+library(matrixStats)
+library(reticulate)
+# conda_install("r-reticulate", "wquantiles") #for python code execution
+# conda_install("r-reticulate", "statsmodels") #for python code execution
+```
+
+```{python}
+from pathlib import Path
+
+import pandas as pd
+import numpy as np
+from scipy.stats import trim_mean
+from statsmodels import robust
+import wquantiles
+
+import seaborn as sns
+import matplotlib.pylab as plt
+
+try:
+    import common
+    DATA = common.dataDirectory()
+except ImportError:
+    DATA = Path().resolve() / 'data'
+
+# Define paths to data sets. If you don't keep your data in the same directory as the code, adapt the path names.
+
+AIRLINE_STATS_CSV = DATA / 'airline_stats.csv'
+KC_TAX_CSV = DATA / 'kc_tax.csv.gz'
+LC_LOANS_CSV = DATA / 'lc_loans.csv'
+AIRPORT_DELAYS_CSV = DATA / 'dfw_airline.csv'
+# SP500_DATA_CSV = DATA / 'sp500_data.csv.gz'
+# SP500_SECTORS_CSV = DATA / 'sp500_sectors.csv'
+STATE_CSV = DATA / 'state.csv'
+```
+
+## 1.3 Estimates of Location
+
+> p.12
+
+### R
+
+```{r}
+PSDS_PATH <- file.path((getwd())) #Adjust the syntax to get the specific file path.
+PSDS_PATH 
+state <- read.csv(file.path(PSDS_PATH, 'data', 'state.csv'))
+state
+```
+
+```{r}
+state %>% class()
+state_asc <- state
+#Change the format of numbers, e.g. 10000 -> 10,000
+state_asc[['Population']] <- formatC(state_asc[['Population']], format='d', digits=0, big.mark=',') 
+state_asc[1:8,]
+
+mean(state[['Population']])
+mean(state[['Population']], trim=0.1)
+median(state[['Population']])
+
+mean(state[['Murder.Rate']])
+weighted.mean(state[['Murder.Rate']], w=state[['Population']])
+# library('matrixStats')
+weightedMedian(state[['Murder.Rate']], w=state[['Population']])
+```
+
+### Py
+
+```{python}
+state = pd.read_csv(STATE_CSV)
+print(state.head(8))
+
+# Compute the mean, trimmed mean, and median for Population. For `mean` and `median` we can use the _pandas_ methods of the data frame. The trimmed mean requires the `trim_mean` function in _scipy.stats_.
+
+state = pd.read_csv(STATE_CSV)
+state.__class__
+print(state['Population'].mean())
+
+print(trim_mean(state['Population'], 0.1))
+
+print(state['Population'].median())
+
+# Weighted mean is available with numpy. For weighted median, we can use the specialised package `wquantiles` (https://pypi.org/project/wquantiles/).
+
+print(state['Murder.Rate'].mean())
+print(np.average(state['Murder.Rate'], weights=state['Population']))
+print(wquantiles.median(state['Murder.Rate'], weights=state['Population']))
+
+```
+
+## 1.4 Estimates of Variability
+
+> p.18
+
+### R
+
+```{r}
+# state$Population %>% sd()
+sd(state[['Population']])
+IQR(state[['Population']])
+mad(state[['Population']])
+```
+
+### Py
+
+```{python}
+print(state.head(8))
+
+# Standard deviation
+
+print(state['Population'].std())
+
+# Interquartile range is calculated as the difference of the 75% and 25% quantile.
+
+print(state['Population'].quantile(0.75) - state['Population'].quantile(0.25))
+
+# Median absolute deviation from the median can be calculated with a method in _statsmodels_
+print(state['Population'].mean())
+print(state['Population'].median())
+print(robust.scale.mad(state['Population']))
+# print(abs(state['Population'] - state['Population'].median()).median() / 0.6744897501960817)
+
+```
+
+## 1.5 Exploring the Data Distribution
+
+> p.20
+
+### R
+
+```{r}
+quantile(state[['Murder.Rate']], p=c(.05, .25, .5, .75, .95))
+
+boxplot(state[['Population']]/1000000, ylab='Population (millions)')
+```
+
+```{r Frequency Tables and Histograms}
+breaks <- seq(from=min(state[['Population']]), 
+              to=max(state[['Population']]), length=11)
+pop_freq <- cut(state[['Population']], breaks=breaks, 
+                right=TRUE, include.lowest=TRUE)
+state['PopFreq'] <- pop_freq
+table(pop_freq)
+
+options(scipen=5)
+#integer. A penalty to be applied when deciding to print numeric values in fixed or exponential notation. Positive values bias towards fixed and negative towards scientific notation: fixed notation will be preferred unless it is more than scipen digits wider.
+hist(state[['Population']], breaks=breaks)
+```
+
+```{r Density Estimates}
+# Density is an alternative to histograms that can provide more insight into the distribution of the data points.
+
+#freq=FALSE, probability densities, component density, are plotted (so that the histogram has a total area of one). Defaults to TRUE if and only if breaks are equidistant（等距離） (and probability is not specified).
+hist(state[['Murder.Rate']], freq=F)
+lines(density(state[['Murder.Rate']]), lwd=3, col='blue')
+
+```
+
+
+### Py
+
+```{python}
+# _Pandas_ has the `quantile` method for data frames.
+
+print(state['Murder.Rate'].quantile([0.05, 0.25, 0.5, 0.75, 0.95]))
+
+# _Pandas_ provides a number of basic exploratory plots; one of them are boxplots
+
+ax = (state['Population']/1_000_000).plot.box(figsize=(3, 4))
+ax.set_ylabel('Population (millions)')
+
+plt.tight_layout()
+plt.show()
+```
+
+```{python Frequency Tables and Histograms1}
+# The `cut` method for _pandas_ data splits the dataset into bins. There are a number of arguments for the method. The following code creates equal sized bins. The method `value_counts` returns a frequency table.
+
+binnedPopulation = pd.cut(state['Population'], 10) #cut into 10 bins
+print(binnedPopulation.value_counts())
+```
+
+```{python Frequency Tables and Histograms2}
+binnedPopulation.name = 'binnedPopulation'
+df = pd.concat([state, binnedPopulation], axis=1)
+df = df.sort_values(by='Population')
+df
+groups = []
+for group, subset in df.groupby(by='binnedPopulation'):
+    groups.append({
+        'BinRange': group,
+        'Count': len(subset),
+        'States': ','.join(subset.Abbreviation)
+    })
+print(pd.DataFrame(groups))
+```
+
+```{python Frequency Tables and Histograms3}
+# _Pandas_ also supports histograms for exploratory data analysis.
+#With DataFrame.plot.hist method.
+ax = (state['Population'] / 1_000_000).plot.hist(figsize=(4, 4))
+ax.set_xlabel('Population (millions)')
+# plt.close("all") #clear out all the graph and reset to an empty white background.
+plt.tight_layout()
+plt.show()
+```
+
+```{python Density Estimates}
+# Density is an alternative to histograms that can provide more insight into the distribution of the data points. Use the argument `bw_method` to control the smoothness of the density curve.
+
+#Pandas provides the density method: With DataFrame.plot.density method.
+plt.close("all")
+ax = state['Murder.Rate'].plot.hist(density=True, xlim=[0, 12], 
+                                    bins=range(1,12),
+                                    figsize=(4, 4))
+state['Murder.Rate'].plot.density(ax=ax)
+ax.set_xlabel('Murder Rate (per 100,000)')
+
+plt.tight_layout()
+plt.show()
+```
+
+## 1.6 Exploring Binary or Categorical Data
+
+> P. 27
+
+### R
+
+```{r}
+PSDS_PATH <- file.path((getwd())) 
+dfw <- read.csv(file.path(PSDS_PATH, 'data', 'dfw_airline.csv'))
+dfw
+```
+
+```{r}
+barplot(as.matrix(dfw) / 6, cex.axis=0.8, cex.names=0.7, 
+        xlab='Cause of delay', ylab='Count')
+```
+
+### Py
+
+```{python}
+AIRPORT_DELAYS_CSV = DATA / 'dfw_airline.csv'
+AIRPORT_DELAYS_CSV 
+dfw = pd.read_csv(AIRPORT_DELAYS_CSV)
+dfw
+print(100 * dfw / dfw.values.sum())
+```
+
+```{python}
+# _Pandas_ also supports bar charts for displaying a single categorical variable.
+
+# dfw.transpose(), transpose the structure
+ax = dfw.transpose().plot.bar(figsize=(4, 4), legend=False)
+ax.set_xlabel('Cause of delay')
+ax.set_ylabel('Count')
+
+plt.tight_layout()
+plt.show()
+```
+
+## 1.7 Correlation
+
+> p.30
+
+### R
+
+```{r telecom}
+sp500_px <- read.csv(file.path(PSDS_PATH, 'data', 'sp500_data.csv.gz'), row.names=1)
+sp500_sym <- read.csv(file.path(PSDS_PATH, 'data', 'sp500_sectors.csv'), stringsAsFactors = FALSE)
+
+sp500_sym
+sp500_px
+
+# sp500_sym[sp500_sym$sector == 'telecommunications_services',]
+# sp500_sym[sp500_sym$sector == 'telecommunications_services', "symbol"] return a single vector.
+
+telecom <- sp500_px[, sp500_sym[sp500_sym$sector == 'telecommunications_services', "symbol"]]
+telecom
+telecom <- telecom[row.names(telecom) > '2012-07-01',]
+telecom
+telecom_cor <- cor(telecom)
+telecom_cor
+```
+
+```{r ETF}
+# Next we focus on funds traded on major exchanges (sector == 'etf').
+
+etfs <- sp500_px[row.names(sp500_px) > '2012-07-01', 
+                 sp500_sym[sp500_sym$sector == 'etf', 'symbol']]
+corrplot::corrplot(cor(etfs), method='ellipse')
+```
+
+```{r Scatterplot}
+# plot(telecom$T, telecom$VZ, xlab='T', ylab='VZ', cex=.8)
+telecom
+plot(telecom$T, telecom$VZ, xlab='ATT (T)', ylab='Verizon (VZ)')
+abline(h=0, v=0, col='grey')
+dim(telecom)
+```
+
+### Py
+
+```{python telecom}
+# First read the required datasets
+SP500_DATA_CSV = DATA / 'sp500_data.csv.gz'
+SP500_SECTORS_CSV = DATA / 'sp500_sectors.csv'
+
+sp500_sym = pd.read_csv(SP500_SECTORS_CSV)
+sp500_px = pd.read_csv(SP500_DATA_CSV, index_col=0)
+sp500_sym.head(8)
+sp500_px.head(8)
+# Table 1-7
+# Determine telecommunications symbols
+telecomSymbols = sp500_sym[sp500_sym['sector'] == 'telecommunications_services']['symbol']
+
+telecomSymbols
+
+# Filter data for dates July 2012 through June 2015
+telecom = sp500_px.loc[sp500_px.index >= '2012-07-01', telecomSymbols]
+telecom
+telecom.corr()
+print(telecom)
+```
+
+```{python ETF}
+# Next we focus on funds traded on major exchanges (sector == 'etf').
+
+etfs = sp500_px.loc[sp500_px.index > '2012-07-01', 
+                    sp500_sym[sp500_sym['sector'] == 'etf']['symbol']]
+print(etfs.head())
+
+# Due to the large number of columns in this table, looking at the correlation matrix (17X17) is cumbersome and it's more convenient to plot the correlation as a heatmap. The _seaborn_ package provides a convenient implementation for heatmaps.
+
+fig, ax = plt.subplots(figsize=(5, 4))
+ax = sns.heatmap(etfs.corr(), vmin=-1, vmax=1, 
+                 cmap=sns.diverging_palette(20, 220, as_cmap=True),
+                 ax=ax)
+
+plt.tight_layout()
+plt.show()
+```
+
+```{python scatterplot}
+# Simple scatterplots are supported by _pandas_. Specifying the marker as `$\u25EF$` uses an open circle for each point.
+
+ax = telecom.plot.scatter(x='T', y='VZ', figsize=(4, 4), marker='$\u25EF$')
+ax.set_xlabel('ATT (T)')
+ax.set_ylabel('Verizon (VZ)')
+ax.axhline(0, color='grey', lw=1)
+ax.axvline(0, color='grey', lw=1)
+
+plt.tight_layout()
+plt.show()
+```
+
+## 1.8 Exploring Two or More Variables
+
+### R
+
+```{r kc_tax1}
+PSDS_PATH <- file.path((getwd())) 
+kc_tax <- read.csv(file.path(PSDS_PATH, 'data', 'kc_tax.csv.gz'))
+
+
+kc_tax0 <- subset(kc_tax, TaxAssessedValue < 750000 & 
+                  SqFtTotLiving > 100 &
+                  SqFtTotLiving < 3500)
+nrow(kc_tax0)
+kc_tax0 |> head()
+```
+
+```{r kc_tax_hex1}
+# If the number of data points gets large, scatter plots will no longer be meaningful. Here methods that visualize densities are more useful. The `stat_hexbin` method for is one powerful approach.
+
+graph <- ggplot2::ggplot(kc_tax0, (aes(x=SqFtTotLiving, y=TaxAssessedValue))) + 
+  stat_binhex(color='white') + 
+  theme_bw() + 
+  scale_fill_gradient(low='white', high='blue') +
+  scale_y_continuous(labels = function(x) format(x, scientific = FALSE)) +
+  labs(x='Finished Square Feet', y='Tax-Assessed Value')
+graph
+```
+
+```{r kc_tax_hex_2}
+library(tidyverse)
+kc_tax0 %>% ggplot(aes(x=SqFtTotLiving, y=TaxAssessedValue)) + geom_hex(color = "white") + #color = "white" makes the graph more vivid.
+theme_bw() + 
+scale_fill_gradient(low='white', high='blue') +
+scale_y_continuous(labels = function(x) format(x, scientific = FALSE)) +
+labs(x='Finished Square Feet', y='Tax-Assessed Value')
+```
+
+```{r kc_tx_Contour}
+# Visualize as a two-dimensional extension of the density plot.
+
+graph <- ggplot(kc_tax0, aes(SqFtTotLiving, TaxAssessedValue)) +
+  theme_bw() + 
+  geom_point(color='blue', alpha=0.1) + 
+  geom_density2d(color='white') + 
+  scale_y_continuous(labels = function(x) format(x, scientific = FALSE)) +
+  labs(x='Finished Square Feet', y='Tax-Assessed Value')
+graph
+```
+```{r lc_loans}
+lc_loans <- read.csv(file.path(PSDS_PATH, 'data', 'lc_loans.csv'))
+library(descr)
+x_tab <- CrossTable(lc_loans$grade, lc_loans$status, 
+                    prop.c=FALSE, prop.chisq=FALSE, prop.t=FALSE)
+
+x_tab
+```
+
+```{r flight}
+
+airline_stats <- read.csv(file.path(PSDS_PATH, 'data', 'airline_stats.csv'), stringsAsFactors = FALSE)
+
+airline_stats
+
+# Boxplots of a column can be grouped by a different column.
+boxplot(pct_carrier_delay ~ airline,
+        data=airline_stats,
+        ylim=c(0, 50), 
+        cex.axis=.6,
+        ylab='Daily % of Delayed Flights')
+```
+
+```{r violin_plot}
+# Variation of boxplots called _violinplot_.
+library(ggplot2)
+graph <- ggplot(data=airline_stats, aes(airline, pct_carrier_delay)) + 
+  ylim(0, 50) + 
+  geom_violin(draw_quantiles = c(.25,.5,.75), linetype=2) +
+  geom_violin(fill=NA, size=1.1) +
+  labs(x='', y='Daily % of Delayed Flights') +
+  theme_bw()
+graph
+```
+
+```{r facet}
+### Visualizing Multiple Variables
+
+graph <- ggplot(subset(kc_tax0, ZipCode %in% c(98188, 98105, 98108, 98126)),
+                aes(x=SqFtTotLiving, y=TaxAssessedValue)) + 
+  stat_binhex(colour='white') + 
+  theme_bw() + 
+  scale_fill_gradient(low='gray95', high='black') +
+  scale_y_continuous(labels = function(x) format(x, scientific = FALSE)) +
+  labs(x='Finished Square Feet', y='Tax-Assessed Value') +
+  facet_wrap('ZipCode')
+graph
+```
+
+
+
+### Py
+
+```{python kc_tax}
+
+KC_TAX_CSV = DATA / 'kc_tax.csv.gz'
+
+kc_tax = pd.read_csv(KC_TAX_CSV)
+kc_tax.head(6)
+kc_tax0 = kc_tax.loc[(kc_tax.TaxAssessedValue < 750000) & 
+                     (kc_tax.SqFtTotLiving > 100) &
+                     (kc_tax.SqFtTotLiving < 3500), :]
+                     
+print(kc_tax0.shape)
+```
+
+```{python kc_tax_hex}
+# If the number of data points gets large, scatter plots will no longer be meaningful. Here methods that visualize densities are more useful. The `hexbin` method for _pandas_ data frames is one powerful approach.
+
+ax = kc_tax0.plot.hexbin(x='SqFtTotLiving', y='TaxAssessedValue',
+                         gridsize=30, sharex=False, figsize=(5, 4))
+ax.set_xlabel('Finished Square Feet')
+ax.set_ylabel('Tax Assessed Value')
+
+plt.tight_layout()
+plt.show()
+```
+
+```{python kx_tax_Contour}
+# The _seaborn_ kdeplot is a two-dimensional extension of the density plot. The calculation of the 2D-density for the full dataset takes several minutes. It is sufficient to create the visualization with a smaller sample of the dataset. With 10,000 data points, creating the graph takes only seconds. While some details may be lost, the overall shape is preserved.
+
+fig, ax = plt.subplots(figsize=(4, 4))
+sns.kdeplot(data=kc_tax0.sample(10000), x='SqFtTotLiving', y='TaxAssessedValue', ax=ax)
+ax.set_xlabel('Finished Square Feet')
+ax.set_ylabel('Tax Assessed Value')
+
+plt.tight_layout()
+plt.show()
+```
+
+```{python lc_loans}
+lc_loans = pd.read_csv(LC_LOANS_CSV)
+
+# Table 1-8(1)
+crosstab = lc_loans.pivot_table(index='grade', columns='status', 
+                                aggfunc=lambda x: len(x), margins=True)
+print(crosstab)
+
+# Table 1-8(2)
+df = crosstab.copy().loc['A':'G',:] #create a copy of the pivot table, ignoring the column sums.
+df
+df.loc[:,'Charged Off':'Late'] = df.loc[:,'Charged Off':'Late'].div(df['All'], axis=0)
+df
+df['All'] = df['All'] / sum(df['All'])
+df
+perc_crosstab = df
+print(perc_crosstab)
+```
+
+```{python flight}
+# _Pandas_ boxplots of a column can be grouped by a different column.
+
+airline_stats = pd.read_csv(AIRLINE_STATS_CSV)
+airline_stats.head()
+ax = airline_stats.boxplot(by='airline', column='pct_carrier_delay',
+                           figsize=(5, 5))
+ax.set_xlabel('')
+ax.set_ylabel('Daily % of Delayed Flights')
+plt.suptitle('')
+
+plt.tight_layout()
+plt.show()
+```
+```{python violin_plot}
+
+# _Pandas_ also supports a variation of boxplots called _violinplot_.
+#Violin plots are available with the violinplot method of the seaborn package
+
+fig, ax = plt.subplots(figsize=(5, 5))
+sns.violinplot(data=airline_stats, x='airline', y='pct_carrier_delay',
+               ax=ax, inner='quartile', color='white')
+ax.set_xlabel('')
+ax.set_ylabel('Daily % of Delayed Flights')
+
+plt.tight_layout()
+plt.show()
+```
+
+```{python facet}
+### Visualizing Multiple Variables
+### It will be last complicated with leveraging seaborn
+
+zip_codes = [98188, 98105, 98108, 98126]
+kc_tax_zip = kc_tax0.loc[kc_tax0.ZipCode.isin(zip_codes),:]
+kc_tax_zip
+
+def hexbin(x, y, color, **kwargs):
+    cmap = sns.light_palette(color, as_cmap=True)
+    plt.hexbin(x, y, gridsize=25, cmap=cmap, **kwargs)
+
+g = sns.FacetGrid(kc_tax_zip, col='ZipCode', col_wrap=2)
+g.map(hexbin, 'SqFtTotLiving', 'TaxAssessedValue', 
+      extent=[0, 3500, 0, 700000])
+g.set_axis_labels('Finished Square Feet', 'Tax Assessed Value')
+g.set_titles('Zip code {col_name:.0f}')
+
+plt.tight_layout()
+plt.show()
+
+```
+
+
