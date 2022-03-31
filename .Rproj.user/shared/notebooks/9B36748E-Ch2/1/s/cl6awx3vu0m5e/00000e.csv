@@ -1,0 +1,14 @@
+"0","reticulate::repl_python()"
+"2","Python 3.9.2 (/Users/chenpoming/opt/anaconda3/envs/r-reticulate/bin/python)
+Reticulate 1.24 REPL -- A Python interpreter in R.
+Enter 'exit' or 'quit' to exit the REPL and return to R.
+"
+"0","#Wei‐ bull distribution is used with time-to-failure analysis such as the increasing probability of device failure instead of event rate, so the 100 random numbers is life time."
+"0",""
+"0","sample = stats.weibull_min.rvs(1.5, scale=10, size=100)"
+"0",""
+"0","# plt.clf()"
+"0","pd.Series(sample).plot.hist()"
+"1","<AxesSubplot:ylabel='Frequency'>
+"
+"0","plt.show()"

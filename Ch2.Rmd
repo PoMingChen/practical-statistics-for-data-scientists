@@ -377,3 +377,63 @@ print(stats.binom.pmf(2, n=5, p=0.1))
 print(stats.binom.cdf(2, n=5, p=0.1))
 ```
 
+## 2.10 Chi-Square Distribution
+
+## 2.11 F-Distribution
+
+## 2.12 Possion Distribution
+
+### R
+
+```{r Possion}
+rpois(100, lambda=2)
+```
+
+```{r Exp_Dist}
+set.seed(3)
+rexp(n=100, rate=.2) 
+rexp(n=100, rate=.2) -> x
+mean(x) #close to lamda 1 call/5minute
+```
+
+```{r Weibull}
+#Wei‐ bull distribution is used with time-to-failure analysis such as the increasing probability of device failure instead of event rate, so the 100 random numbers is life time.
+rweibull(n = 100, shape = 1.5, scale = 10)
+rweibull(n = 100, shape = 1.5, scale = 5000)
+dweibull(x= 1, shape = 1.5, scale = 5000)
+pweibull(q= 1, shape = 1.5, scale = 5000)
+qweibull(p= 1, shape = 1.5, scale = 5000)
+```
+
+### Py
+
+```{python Possion}
+sample = stats.poisson.rvs(2, size=100)
+
+pd.Series(sample).plot.hist()
+plt.show()
+```
+
+```{python Exp_Dist}
+sample = stats.expon.rvs(scale=5, size=100) #scale = 5 means 1 event in 5 minute, which is equal to the rate =0.2 in R code.
+
+#You may understand rate = 0.2 in R code is equal to lambda, scale = 5 is equal to 1/lambda
+
+sample.mean()
+
+plt.clf()
+pd.Series(sample).plot.hist()
+plt.show()
+```
+
+```{python Weibull}
+#Wei‐ bull distribution is used with time-to-failure analysis such as the increasing probability of device failure instead of event rate, so the 100 random numbers is life time.
+
+sample = stats.weibull_min.rvs(1.5, scale=10, size=100)
+
+# plt.clf()
+pd.Series(sample).plot.hist()
+plt.show()
+```
+
+
