@@ -1,0 +1,8 @@
+"0","perm_fun <- function(x, nA, nB)"
+"0","{"
+"0","  n <- nA + nB"
+"0","  idx_b <- sample(1:n, nB)"
+"0","  idx_a <- setdiff(1:n, idx_b)"
+"0","  mean_diff <- mean(x[idx_b]) - mean(x[idx_a])"
+"0","  return(mean_diff)"
+"0","}"

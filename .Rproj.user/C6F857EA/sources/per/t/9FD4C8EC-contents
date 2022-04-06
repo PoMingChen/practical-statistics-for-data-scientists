@@ -9,7 +9,233 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Environment
 
+```{r}
+library(ggplot2)
+library(dplyr)
+library(lmPerm)
+library(pwr)
+library(lmPerm)
+
+PSDS_PATH <- file.path((getwd()))
+PSDS_PATH
+
+session_times <- read.csv(file.path(PSDS_PATH, 'data', 'web_page_data.csv'))
+session_times[,2] <- session_times[,2] * 100
+session_times
+four_sessions  <- read.csv(file.path(PSDS_PATH, 'data', 'four_sessions.csv'))
+click_rate <-  read.csv(file.path(PSDS_PATH, 'data', 'click_rates.csv'))
+imanishi <-  read.csv(file.path(PSDS_PATH, 'data', 'imanishi_data.csv'))
+
+# conda_install("r-reticulate", "sklearn"), not work...check next line.
+# conda_install("r-reticulate", "sklearn", pip = T) #for python code execution
+```
+
+```{python}
+from pathlib import Path
+import pandas as pd
+import numpy as np
+from scipy import stats
+import sklearn
+from sklearn.utils import resample
+import random
+
+import seaborn as sns
+import matplotlib.pylab as plt
+
+try:
+    import common
+    DATA = common.dataDirectory()
+except ImportError:
+    DATA = Path().resolve() / 'data'
+
+# Define paths to data sets. If you don't keep your data in the same directory as the code, adapt the path names.
+
+WEB_PAGE_DATA_CSV = DATA / 'web_page_data.csv'
+FOUR_SESSIONS_CSV = DATA / 'four_sessions.csv'
+CLICK_RATE_CSV = DATA / 'click_rates.csv'
+IMANISHI_CSV = DATA / 'imanishi_data.csv'
+
+session_times = pd.read_csv(WEB_PAGE_DATA_CSV)
+session_times.Time = 100 * session_times.Time
+```
 
 ## A/B Testing
 
 ## Resampling
+
+### Example: Web Stickiness
+
+#### R
+
+```{r boxplot}
+session_times
+graph <- ggplot(session_times, aes(x=Page, y=Time)) + 
+  geom_boxplot() +
+  labs(y='Time (in seconds)') + 
+  theme_bw()
+graph
+```
+
+```{r diff_in_mean}
+mean_a <- mean(session_times[session_times['Page'] == 'Page A', 'Time'])
+mean_b <- mean(session_times[session_times['Page'] == 'Page B', 'Time'])
+mean_b - mean_a
+```
+
+```{r perm_fun}
+perm_fun <- function(x, nA, nB)
+{
+  n <- nA + nB
+  idx_b <- sample(1:n, nB)
+  idx_a <- setdiff(1:n, idx_b)
+  mean_diff <- mean(x[idx_b]) - mean(x[idx_a])
+  return(mean_diff)
+}
+```
+
+```{r Permutation_1000}
+perm_diffs <- rep(0, 1000)
+for (i in 1:1000) {
+  perm_diffs[i] = perm_fun(session_times[, 'Time'], 21, 15)
+}
+par(mar=c(4,4,1,0)+.1)
+hist(perm_diffs, xlab='Session time differences (in seconds)', main='')
+abline(v=mean_b - mean_a, lty=2, lwd=1.5)
+text('  Observed\n  difference', x=mean_b - mean_a,  y=par()$usr[4]-20, adj=0)
+
+mean(perm_diffs > (mean_b - mean_a)) #14.2% of the permuted mean difference are bigger than the observed difference.(The boolean condition returns T/F and turn to 1/0 for its mean)
+```
+#### Py
+
+```{python boxplot}
+ax = session_times.boxplot(by='Page', column='Time',
+                           figsize=(4, 4))
+ax.set_xlabel('')
+ax.set_ylabel('Time (in seconds)')
+plt.suptitle('')
+
+plt.tight_layout()
+plt.show()
+```
+
+```{python diff_in_mean}
+mean_a = session_times[session_times.Page == 'Page A'].Time.mean()
+mean_b = session_times[session_times.Page == 'Page B'].Time.mean()
+print(mean_b - mean_a)
+```
+
+```{python perm_fun}
+def perm_fun(x, nA, nB):
+    n = nA + nB
+    idx_B = set(random.sample(range(n), nB))
+    idx_A = set(range(n)) - idx_B
+    return x.loc[idx_B].mean() - x.loc[idx_A].mean()
+```
+
+```{python Permutation_1000}
+nA = session_times[session_times.Page == 'Page A'].shape[0]
+nB = session_times[session_times.Page == 'Page B'].shape[0]
+print(perm_fun(session_times.Time, nA, nB))
+
+random.seed(1)
+perm_diffs = [perm_fun(session_times.Time, nA, nB) for _ in range(1000)]
+
+fig, ax = plt.subplots(figsize=(5, 5))
+ax.hist(perm_diffs, bins=11, rwidth=0.9)
+ax.axvline(x = mean_b - mean_a, color='black', lw=2)
+ax.text(50, 190, 'Observed\ndifference', bbox={'facecolor':'white'})
+ax.set_xlabel('Session time differences (in seconds)')
+ax.set_ylabel('Frequency')
+
+plt.tight_layout()
+plt.show()
+
+print(np.mean(perm_diffs > mean_b - mean_a)) #12.1% of the permuted mean difference are bigger than the observed difference.(The boolean condition returns T/F and turn to 1/0 for its mean)
+
+```
+
+## Statistical Significance and p-Values
+
+### Example: Web Stickiness
+
+#### R
+
+```{r Permutation_1000_hist}
+obs_pct_diff <- 100 * (200 / 23739 - 182 / 22588)
+conversion <- c(rep(0, 45945), rep(1, 382))
+perm_diffs <- rep(0, 1000)
+for (i in 1:1000) {
+  perm_diffs[i] = 100 * perm_fun(conversion, 23739, 22588)
+}
+
+hist(perm_diffs, xlab='Conversion rate (percent)', main='')
+abline(v=obs_pct_diff, lty=2, lwd=1.5)
+text('   Observed\n   difference', x=obs_pct_diff,  y=par()$usr[4]-20, adj=0)
+```
+
+```{r p-value}
+obs_pct_diff
+mean(perm_diffs > obs_pct_diff)
+```
+
+```{r prop.test}
+#n=c(23739,22588), 23739 = 200+23539, 22588 = 182+22406
+#The argument x is the number of successes for each group, and the argument n is the number of trials.
+prop.test(x=c(200,182), n=c(23739,22588), alternative='greater')
+```
+
+```{r t-test}
+t.test(Time ~ Page, data=session_times, alternative='less')
+```
+
+#### Py
+
+```{python Permutation_1000_hist}
+random.seed(1)
+obs_pct_diff = 100 * (200 / 23739 - 182 / 22588)
+print(f'Observed difference: {obs_pct_diff:.4f}%')
+conversion = [0] * 45945
+conversion.extend([1] * 382)
+conversion = pd.Series(conversion)
+
+perm_diffs = [100 * perm_fun(conversion, 23739, 22588) 
+              for _ in range(1000)]
+
+# perm_diffs
+fig, ax = plt.subplots(figsize=(5, 5))
+ax.hist(perm_diffs, bins=11, rwidth=0.9)
+ax.axvline(x=obs_pct_diff, color='black', lw=2)
+ax.text(0.06, 200, 'Observed\ndifference', bbox={'facecolor':'white'})
+ax.set_xlabel('Conversion rate (percent)')
+ax.set_ylabel('Frequency')
+
+plt.tight_layout()
+plt.show()
+```
+
+```{python p-value}
+# If `np.mean` is applied to a list of booleans, it gives the percentage of how often True was found in the list (#True / #Total).
+
+print(np.mean([diff > obs_pct_diff for diff in perm_diffs]))
+
+```
+
+```{python prop.test}
+survivors = np.array([[200, 23739 - 200], [182, 22588 - 182]])
+chi2, p_value, df, _ = stats.chi2_contingency(survivors)
+
+print(f'p-value for single sided test: {p_value / 2:.4f}')
+
+```
+
+```{python t-test}
+res = stats.ttest_ind(session_times[session_times.Page == 'Page A'].Time, 
+                      session_times[session_times.Page == 'Page B'].Time,
+                      equal_var=False)
+print(f'p-value for single sided test: {res.pvalue / 2:.4f}')
+
+```
+
+
+
+

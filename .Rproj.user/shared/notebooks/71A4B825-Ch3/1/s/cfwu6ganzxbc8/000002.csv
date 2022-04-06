@@ -1,0 +1,10 @@
+"0","reticulate::repl_python()"
+"2","Python 3.9.2 (/Users/chenpoming/opt/anaconda3/envs/r-reticulate/bin/python)
+Reticulate 1.24 REPL -- A Python interpreter in R.
+Enter 'exit' or 'quit' to exit the REPL and return to R.
+"
+"0","def perm_fun(x, nA, nB):"
+"0","    n = nA + nB"
+"0","    idx_B = set(random.sample(range(n), nB))"
+"0","    idx_A = set(range(n)) - idx_B"
+"0","    return x.loc[idx_B].mean() - x.loc[idx_A].mean()"

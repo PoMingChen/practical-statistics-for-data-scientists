@@ -1,0 +1,4 @@
+"0","print(np.mean(perm_diffs > mean_b - mean_a)) #14.2% of the permuted mean difference are bigger than the observed difference.
+"
+"1","0.121
+"
