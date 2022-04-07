@@ -1,0 +1,6 @@
+"0","print(aov_table)
+"
+"1","            df  sum_sq     mean_sq         F    PR(>F)
+Page       3.0   831.4  277.133333  2.739825  0.077586
+Residual  16.0  1618.4  101.150000       NaN       NaN
+"

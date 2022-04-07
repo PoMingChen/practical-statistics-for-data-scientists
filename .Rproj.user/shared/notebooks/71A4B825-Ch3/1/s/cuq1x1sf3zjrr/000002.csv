@@ -1,0 +1,23 @@
+"0","reticulate::repl_python()"
+"2","Python 3.9.2 (/Users/chenpoming/opt/anaconda3/envs/r-reticulate/bin/python)
+Reticulate 1.24 REPL -- A Python interpreter in R.
+Enter 'exit' or 'quit' to exit the REPL and return to R.
+"
+"0","four_sessions = pd.read_csv(FOUR_SESSIONS_CSV)"
+"0",""
+"0","ax = four_sessions.boxplot(by='Page', column='Time',"
+"0","                           figsize=(4, 4))"
+"0","ax.set_xlabel('Page')"
+"1","Text(0.5, 0, 'Page')
+"
+"0","ax.set_ylabel('Time (in seconds)')"
+"1","Text(0, 0.5, 'Time (in seconds)')
+"
+"0","plt.suptitle('')"
+"1","Text(0.5, 0.98, '')
+"
+"0","plt.title('')"
+"1","Text(0.5, 1.0, '')
+"
+"0","plt.tight_layout()"
+"0","plt.show()"

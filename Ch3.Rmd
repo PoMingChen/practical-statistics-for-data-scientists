@@ -14,7 +14,6 @@ library(ggplot2)
 library(dplyr)
 library(lmPerm)
 library(pwr)
-library(lmPerm)
 
 PSDS_PATH <- file.path((getwd()))
 PSDS_PATH
@@ -38,6 +37,9 @@ from scipy import stats
 import sklearn
 from sklearn.utils import resample
 import random
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+from statsmodels.stats import power
 
 import seaborn as sns
 import matplotlib.pylab as plt
@@ -234,6 +236,92 @@ res = stats.ttest_ind(session_times[session_times.Page == 'Page A'].Time,
                       equal_var=False)
 print(f'p-value for single sided test: {res.pvalue / 2:.4f}')
 
+```
+
+
+## Multiple Test
+
+## Degree of Freedom
+
+## ANOVA
+
+### R
+
+```{r ANOVA_Boxplot}
+graph <- ggplot(four_sessions, aes(x=Page, y=Time)) + 
+  geom_boxplot() +
+  labs(y='Time (in seconds)') +
+  theme_bw()
+graph
+```
+
+
+```{r aovp}
+#aovp is aov modified to use permutation tests instead of normal theory tests.(Check the e-book P.120, that's the resampling procedure behind it. Use the procedure to build the reference distribution for the hypothesis test.)
+
+#There is Iter, or Iteration parameter.
+summary(aovp(Time ~ Page, data=four_sessions))
+```
+
+```{r aov}
+summary(aov(Time ~ Page, data=four_sessions))
+```
+
+### Py
+
+```{python ANOVA_Boxplot}
+four_sessions = pd.read_csv(FOUR_SESSIONS_CSV)
+
+ax = four_sessions.boxplot(by='Page', column='Time',
+                           figsize=(4, 4))
+ax.set_xlabel('Page')
+ax.set_ylabel('Time (in seconds)')
+plt.suptitle('')
+plt.title('')
+
+plt.tight_layout()
+plt.show()
+```
+
+```{python aovp}
+print(pd.read_csv(FOUR_SESSIONS_CSV).head())
+
+observed_variance = four_sessions.groupby('Page').mean().var()[0]
+print('Observed means:', four_sessions.groupby('Page').mean().values.ravel())
+print('Variance:', observed_variance)
+# Permutation test example with stickiness
+def perm_test(df):
+    df = df.copy()
+    df['Time'] = np.random.permutation(df['Time'].values)
+    return df.groupby('Page').mean().var()[0]
+    
+print(perm_test(four_sessions))
+
+random.seed(1)
+perm_variance = [perm_test(four_sessions) for _ in range(3000)]
+print('Pr(Prob)', np.mean([var > observed_variance for var in perm_variance]))
+
+```
+
+```{python aovp2}
+fig, ax = plt.subplots(figsize=(5, 5))
+ax.hist(perm_variance, bins=11, rwidth=0.9)
+ax.axvline(x = observed_variance, color='black', lw=2)
+ax.text(60, 200, 'Observed\nvariance', bbox={'facecolor':'white'})
+ax.set_xlabel('Variance')
+ax.set_ylabel('Frequency')
+
+plt.tight_layout()
+plt.show()
+```
+
+
+```{python aov}
+
+model = smf.ols('Time ~ Page', data=four_sessions).fit()
+                
+aov_table = sm.stats.anova_lm(model)
+print(aov_table)
 ```
 
 
