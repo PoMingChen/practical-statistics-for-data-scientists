@@ -1,0 +1,12 @@
+"0","reticulate::repl_python()"
+"2","Python 3.9.2 (/Users/chenpoming/opt/anaconda3/envs/r-reticulate/bin/python)
+Reticulate 1.24 REPL -- A Python interpreter in R.
+Enter 'exit' or 'quit' to exit the REPL and return to R.
+"
+"0","chisq, pvalue, df, expected = stats.chi2_contingency(clicks)"
+"0","print(f'Observed chi2: {chisq:.4f}')"
+"1","Observed chi2: 1.6659
+"
+"0","print(f'p-value: {pvalue:.4f}')"
+"1","p-value: 0.4348
+"

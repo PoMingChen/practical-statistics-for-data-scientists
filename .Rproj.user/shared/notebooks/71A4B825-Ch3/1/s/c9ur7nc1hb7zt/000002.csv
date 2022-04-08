@@ -1,0 +1,4 @@
+"0","stats.fisher_exact(clicks.values)
+"
+"2","ValueError: The input `table` must be of shape (2, 2).
+"
