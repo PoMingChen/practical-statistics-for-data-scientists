@@ -418,6 +418,38 @@ print(f'p-value: {pvalue:.4f}')
 # stats.fisher_exact(clicks.values)
 ```
 
+## Multi-Arm Bandit Algorithm
 
+## Power and Sample Size
+
+### R
+
+```{r Estimate_SampleSize}
+effect_size = ES.h(p1=0.0121, p2=0.011) #calculates the effect size
+pwr.2p.test(h=effect_size, sig.level=0.05, power=0.8, alternative='greater')
+
+effect_size = ES.h(p1=0.0165, p2=0.011)
+pwr.2p.test(h=effect_size, sig.level=0.05, power=0.8, alternative='greater')
+```
+
+### Py
+
+```{python Estimate_SampleSize}
+# statsmodels has a number of methods for power calculation
+# 
+# see e.g.: https://machinelearningmastery.com/statistical-power-and-power-analysis-in-python/
+
+effect_size = sm.stats.proportion_effectsize(0.0121, 0.011)
+analysis = sm.stats.TTestIndPower()
+result = analysis.solve_power(effect_size=effect_size, 
+                              alpha=0.05, power=0.8, alternative='larger')
+print('Sample Size: %.3f' % result)
+
+effect_size = sm.stats.proportion_effectsize(0.0165, 0.011)
+analysis = sm.stats.TTestIndPower()
+result = analysis.solve_power(effect_size=effect_size, 
+                              alpha=0.05, power=0.8, alternative='larger')
+print('Sample Size: %.3f' % result)
+```
 
 

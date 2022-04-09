@@ -1,0 +1,23 @@
+"0","reticulate::repl_python()"
+"2","Python 3.9.2 (/Users/chenpoming/opt/anaconda3/envs/r-reticulate/bin/python)
+Reticulate 1.24 REPL -- A Python interpreter in R.
+Enter 'exit' or 'quit' to exit the REPL and return to R.
+"
+"0","# statsmodels has a number of methods for power calculation"
+"0","# "
+"0","# see e.g.: https://machinelearningmastery.com/statistical-power-and-power-analysis-in-python/"
+"0",""
+"0","effect_size = sm.stats.proportion_effectsize(0.0121, 0.011)"
+"0","analysis = sm.stats.TTestIndPower()"
+"0","result = analysis.solve_power(effect_size=effect_size, "
+"0","                              alpha=0.05, power=0.8, alternative='larger')"
+"0","print('Sample Size: %.3f' % result)"
+"1","Sample Size: 116602.393
+"
+"0","effect_size = sm.stats.proportion_effectsize(0.0165, 0.011)"
+"0","analysis = sm.stats.TTestIndPower()"
+"0","result = analysis.solve_power(effect_size=effect_size, "
+"0","                              alpha=0.05, power=0.8, alternative='larger')"
+"0","print('Sample Size: %.3f' % result)"
+"1","Sample Size: 5488.408
+"
