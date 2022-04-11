@@ -1,0 +1,18 @@
+"0","reticulate::repl_python()"
+"2","Python 3.9.2 (/Users/chenpoming/opt/anaconda3/envs/r-reticulate/bin/python)
+Reticulate 1.24 REPL -- A Python interpreter in R.
+Enter 'exit' or 'quit' to exit the REPL and return to R.
+"
+"0","predictors = ['Exposure']"
+"0","outcome = 'PEFR'"
+"0",""
+"0","model = LinearRegression()"
+"0","model.fit(lung[predictors], lung[outcome])"
+"1","LinearRegression()
+"
+"0","print(f'Intercept: {model.intercept_:.3f}')"
+"1","Intercept: 424.583
+"
+"0","print(f'Coefficient Exposure: {model.coef_[0]:.3f}')"
+"1","Coefficient Exposure: -4.185
+"

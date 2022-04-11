@@ -1,0 +1,63 @@
+"0","library(MASS)"
+"2","警告："
+"2"," 套件 ‘MASS’ 是用 R 版本 4.1.2 來建造的
+"
+"0","library(dplyr)"
+"2","警告："
+"2"," 套件 ‘dplyr’ 是用 R 版本 4.1.2 來建造的
+"
+"2","
+載入套件：‘dplyr’
+
+"
+"2","下列物件被遮斷自 ‘package:MASS’:
+
+    select
+
+"
+"2","下列物件被遮斷自 ‘package:stats’:
+
+    filter, lag
+
+"
+"2","下列物件被遮斷自 ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+"
+"0","library(tidyr)"
+"2","警告："
+"2"," 套件 ‘tidyr’ 是用 R 版本 4.1.2 來建造的
+"
+"0","library(ggplot2)"
+"0","library(lubridate)"
+"2","
+載入套件：‘lubridate’
+
+"
+"2","下列物件被遮斷自 ‘package:base’:
+
+    date, intersect, setdiff, union
+
+"
+"0","library(splines)"
+"0","library(mgcv)"
+"2","警告："
+"2"," 套件 ‘mgcv’ 是用 R 版本 4.1.2 來建造的
+"
+"2","載入需要的套件：nlme
+"
+"2","警告："
+"2"," 套件 ‘nlme’ 是用 R 版本 4.1.2 來建造的
+"
+"2","
+載入套件：‘nlme’
+
+"
+"2","下列物件被遮斷自 ‘package:dplyr’:
+
+    collapse
+
+"
+"2","This is mgcv 1.8-40. For overview type 'help(""mgcv-package"")'.
+"

@@ -1,0 +1,455 @@
+---
+title: "Ch3"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Environment
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(lmPerm)
+library(pwr)
+
+PSDS_PATH <- file.path((getwd()))
+PSDS_PATH
+
+session_times <- read.csv(file.path(PSDS_PATH, 'data', 'web_page_data.csv'))
+session_times[,2] <- session_times[,2] * 100
+session_times
+four_sessions  <- read.csv(file.path(PSDS_PATH, 'data', 'four_sessions.csv'))
+click_rate <-  read.csv(file.path(PSDS_PATH, 'data', 'click_rates.csv'))
+imanishi <-  read.csv(file.path(PSDS_PATH, 'data', 'imanishi_data.csv'))
+
+# conda_install("r-reticulate", "sklearn"), not work...check next line.
+# conda_install("r-reticulate", "sklearn", pip = T) #for python code execution
+```
+
+```{python}
+from pathlib import Path
+import pandas as pd
+import numpy as np
+from scipy import stats
+import sklearn
+from sklearn.utils import resample
+import random
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+from statsmodels.stats import power
+
+import seaborn as sns
+import matplotlib.pylab as plt
+
+try:
+    import common
+    DATA = common.dataDirectory()
+except ImportError:
+    DATA = Path().resolve() / 'data'
+
+# Define paths to data sets. If you don't keep your data in the same directory as the code, adapt the path names.
+
+WEB_PAGE_DATA_CSV = DATA / 'web_page_data.csv'
+FOUR_SESSIONS_CSV = DATA / 'four_sessions.csv'
+CLICK_RATE_CSV = DATA / 'click_rates.csv'
+IMANISHI_CSV = DATA / 'imanishi_data.csv'
+
+session_times = pd.read_csv(WEB_PAGE_DATA_CSV)
+session_times.Time = 100 * session_times.Time
+```
+
+## A/B Testing
+
+## Resampling
+
+### Example: Web Stickiness
+
+#### R
+
+```{r boxplot}
+session_times
+graph <- ggplot(session_times, aes(x=Page, y=Time)) + 
+  geom_boxplot() +
+  labs(y='Time (in seconds)') + 
+  theme_bw()
+graph
+```
+
+```{r diff_in_mean}
+mean_a <- mean(session_times[session_times['Page'] == 'Page A', 'Time'])
+mean_b <- mean(session_times[session_times['Page'] == 'Page B', 'Time'])
+mean_b - mean_a
+```
+
+```{r perm_fun}
+perm_fun <- function(x, nA, nB)
+{
+  n <- nA + nB
+  idx_b <- sample(1:n, nB)
+  idx_a <- setdiff(1:n, idx_b)
+  mean_diff <- mean(x[idx_b]) - mean(x[idx_a])
+  return(mean_diff)
+}
+```
+
+```{r Permutation_1000}
+perm_diffs <- rep(0, 1000)
+for (i in 1:1000) {
+  perm_diffs[i] = perm_fun(session_times[, 'Time'], 21, 15)
+}
+par(mar=c(4,4,1,0)+.1)
+hist(perm_diffs, xlab='Session time differences (in seconds)', main='')
+abline(v=mean_b - mean_a, lty=2, lwd=1.5)
+text('  Observed\n  difference', x=mean_b - mean_a,  y=par()$usr[4]-20, adj=0)
+
+mean(perm_diffs > (mean_b - mean_a)) #14.2% of the permuted mean difference are bigger than the observed difference.(The boolean condition returns T/F and turn to 1/0 for its mean)
+```
+#### Py
+
+```{python boxplot}
+ax = session_times.boxplot(by='Page', column='Time',
+                           figsize=(4, 4))
+ax.set_xlabel('')
+ax.set_ylabel('Time (in seconds)')
+plt.suptitle('')
+
+plt.tight_layout()
+plt.show()
+```
+
+```{python diff_in_mean}
+mean_a = session_times[session_times.Page == 'Page A'].Time.mean()
+mean_b = session_times[session_times.Page == 'Page B'].Time.mean()
+print(mean_b - mean_a)
+```
+
+```{python perm_fun}
+def perm_fun(x, nA, nB):
+    n = nA + nB
+    idx_B = set(random.sample(range(n), nB))
+    idx_A = set(range(n)) - idx_B
+    return x.loc[idx_B].mean() - x.loc[idx_A].mean()
+```
+
+```{python Permutation_1000}
+nA = session_times[session_times.Page == 'Page A'].shape[0]
+nB = session_times[session_times.Page == 'Page B'].shape[0]
+print(perm_fun(session_times.Time, nA, nB))
+
+random.seed(1)
+perm_diffs = [perm_fun(session_times.Time, nA, nB) for _ in range(1000)]
+
+fig, ax = plt.subplots(figsize=(5, 5))
+ax.hist(perm_diffs, bins=11, rwidth=0.9)
+ax.axvline(x = mean_b - mean_a, color='black', lw=2)
+ax.text(50, 190, 'Observed\ndifference', bbox={'facecolor':'white'})
+ax.set_xlabel('Session time differences (in seconds)')
+ax.set_ylabel('Frequency')
+
+plt.tight_layout()
+plt.show()
+
+print(np.mean(perm_diffs > mean_b - mean_a)) #12.1% of the permuted mean difference are bigger than the observed difference.(The boolean condition returns T/F and turn to 1/0 for its mean)
+
+```
+
+## Statistical Significance and p-Values
+
+### Example: Web Stickiness
+
+#### R
+
+```{r Permutation_1000_hist}
+obs_pct_diff <- 100 * (200 / 23739 - 182 / 22588)
+conversion <- c(rep(0, 45945), rep(1, 382))
+perm_diffs <- rep(0, 1000)
+for (i in 1:1000) {
+  perm_diffs[i] = 100 * perm_fun(conversion, 23739, 22588)
+}
+
+hist(perm_diffs, xlab='Conversion rate (percent)', main='')
+abline(v=obs_pct_diff, lty=2, lwd=1.5)
+text('   Observed\n   difference', x=obs_pct_diff,  y=par()$usr[4]-20, adj=0)
+```
+
+```{r p-value}
+obs_pct_diff
+mean(perm_diffs > obs_pct_diff)
+```
+
+```{r prop.test}
+#n=c(23739,22588), 23739 = 200+23539, 22588 = 182+22406
+#The argument x is the number of successes for each group, and the argument n is the number of trials.
+prop.test(x=c(200,182), n=c(23739,22588), alternative='greater')
+```
+
+```{r t-test}
+t.test(Time ~ Page, data=session_times, alternative='less')
+```
+
+#### Py
+
+```{python Permutation_1000_hist}
+random.seed(1)
+obs_pct_diff = 100 * (200 / 23739 - 182 / 22588)
+print(f'Observed difference: {obs_pct_diff:.4f}%')
+conversion = [0] * 45945
+conversion.extend([1] * 382)
+conversion = pd.Series(conversion)
+
+perm_diffs = [100 * perm_fun(conversion, 23739, 22588) 
+              for _ in range(1000)]
+
+# perm_diffs
+fig, ax = plt.subplots(figsize=(5, 5))
+ax.hist(perm_diffs, bins=11, rwidth=0.9)
+ax.axvline(x=obs_pct_diff, color='black', lw=2)
+ax.text(0.06, 200, 'Observed\ndifference', bbox={'facecolor':'white'})
+ax.set_xlabel('Conversion rate (percent)')
+ax.set_ylabel('Frequency')
+
+plt.tight_layout()
+plt.show()
+```
+
+```{python p-value}
+# If `np.mean` is applied to a list of booleans, it gives the percentage of how often True was found in the list (#True / #Total).
+
+print(np.mean([diff > obs_pct_diff for diff in perm_diffs]))
+
+```
+
+```{python prop.test}
+survivors = np.array([[200, 23739 - 200], [182, 22588 - 182]])
+chi2, p_value, df, _ = stats.chi2_contingency(survivors)
+
+print(f'p-value for single sided test: {p_value / 2:.4f}')
+
+```
+
+```{python t-test}
+res = stats.ttest_ind(session_times[session_times.Page == 'Page A'].Time, 
+                      session_times[session_times.Page == 'Page B'].Time,
+                      equal_var=False)
+print(f'p-value for single sided test: {res.pvalue / 2:.4f}')
+
+```
+
+
+## Multiple Test
+
+## Degree of Freedom
+
+## ANOVA
+
+### R
+
+```{r ANOVA_Boxplot}
+graph <- ggplot(four_sessions, aes(x=Page, y=Time)) + 
+  geom_boxplot() +
+  labs(y='Time (in seconds)') +
+  theme_bw()
+graph
+```
+
+
+```{r aovp}
+#aovp is aov modified to use permutation tests instead of normal theory tests.(Check the e-book P.120, that's the resampling procedure behind it. Use the procedure to build the reference distribution for the hypothesis test.)
+
+#There is Iter, or Iteration parameter.
+summary(aovp(Time ~ Page, data=four_sessions))
+```
+
+```{r aov}
+summary(aov(Time ~ Page, data=four_sessions))
+```
+
+### Py
+
+```{python ANOVA_Boxplot}
+four_sessions = pd.read_csv(FOUR_SESSIONS_CSV)
+
+ax = four_sessions.boxplot(by='Page', column='Time',
+                           figsize=(4, 4))
+ax.set_xlabel('Page')
+ax.set_ylabel('Time (in seconds)')
+plt.suptitle('')
+plt.title('')
+
+plt.tight_layout()
+plt.show()
+```
+
+```{python aovp}
+print(pd.read_csv(FOUR_SESSIONS_CSV).head())
+
+observed_variance = four_sessions.groupby('Page').mean().var()[0]
+print('Observed means:', four_sessions.groupby('Page').mean().values.ravel())
+print('Variance:', observed_variance)
+# Permutation test example with stickiness
+def perm_test(df):
+    df = df.copy()
+    df['Time'] = np.random.permutation(df['Time'].values)
+    return df.groupby('Page').mean().var()[0]
+    
+print(perm_test(four_sessions))
+
+random.seed(1)
+perm_variance = [perm_test(four_sessions) for _ in range(3000)]
+print('Pr(Prob)', np.mean([var > observed_variance for var in perm_variance]))
+
+```
+
+```{python aovp2}
+fig, ax = plt.subplots(figsize=(5, 5))
+ax.hist(perm_variance, bins=11, rwidth=0.9)
+ax.axvline(x = observed_variance, color='black', lw=2)
+ax.text(60, 200, 'Observed\nvariance', bbox={'facecolor':'white'})
+ax.set_xlabel('Variance')
+ax.set_ylabel('Frequency')
+
+plt.tight_layout()
+plt.show()
+```
+
+
+```{python aov}
+
+model = smf.ols('Time ~ Page', data=four_sessions).fit()
+                
+aov_table = sm.stats.anova_lm(model)
+print(aov_table)
+```
+
+## Chi-Square Test
+
+### R
+
+```{r Chi-Square_Resampling}
+### Chi-Square Test: A Resampling Approach
+
+clicks <- matrix(click_rate$Rate, nrow=3, ncol=2, byrow=TRUE)
+dimnames(clicks) <- list(unique(click_rate$Headline), unique(click_rate$Click))
+
+#Pearson's Chi-squared test with simulated p-value (based on 2000 replicates)
+chisq.test(clicks, simulate.p.value=TRUE)
+```
+
+```{r Chi-Square_Distribution}
+#Pearson's Chi-squared test (used to compute the p-value using the chi-square distribution as a reference)
+chisq.test(clicks, simulate.p.value=FALSE)
+```
+
+```{r Fisher's Exact Test}
+fisher.test(clicks)
+```
+
+
+### Py
+
+```{python Chi-Square Table}
+# Table 3-4
+click_rate = pd.read_csv(CLICK_RATE_CSV)
+clicks = click_rate.pivot(index='Click', columns='Headline', values='Rate')
+print(clicks)
+
+# Table 3-5
+row_average = clicks.mean(axis=1)
+pd.DataFrame({
+    'Headline A': row_average,
+    'Headline B': row_average,
+    'Headline C': row_average,
+})
+```
+
+```{python Chi-Square_Resampling}
+box = [1] * 34
+box.extend([0] * 2966)
+random.shuffle(box)
+
+def chi2(observed, expected):
+    pearson_residuals = []
+    for row, expect in zip(observed, expected):
+        pearson_residuals.append([(observe - expect) ** 2 / expect
+                                  for observe in row])
+    # return sum of squares
+    return np.sum(pearson_residuals)
+
+expected_clicks = 34 / 3
+expected_noclicks = 1000 - expected_clicks
+expected = [34 / 3, 1000 - 34 / 3]
+chi2observed = chi2(clicks.values, expected)
+
+def perm_fun(box):
+    sample_clicks = [sum(random.sample(box, 1000)),
+                     sum(random.sample(box, 1000)),
+                     sum(random.sample(box, 1000))]
+    sample_noclicks = [1000 - n for n in sample_clicks]
+    return chi2([sample_clicks, sample_noclicks], expected)
+
+perm_chi2 = [perm_fun(box) for _ in range(2000)]
+
+resampled_p_value = sum(perm_chi2 > chi2observed) / len(perm_chi2)
+print(f'Observed chi2: {chi2observed:.4f}')
+print(f'Resampled p-value: {resampled_p_value:.4f}')
+
+chisq, pvalue, df, expected = stats.chi2_contingency(clicks)
+print(f'Observed chi2: {chisq:.4f}')
+print(f'p-value: {pvalue:.4f}')
+```
+
+```{python Chi-Square_Distribution}
+chisq, pvalue, df, expected = stats.chi2_contingency(clicks)
+print(f'Observed chi2: {chisq:.4f}')
+print(f'p-value: {pvalue:.4f}')
+```
+
+```{python Fisher's Exact Test}
+# Scipy has only an implementation of Fisher's Exact test for 2x2 matrices. There is a github repository that provides a Python implementation that uses the same code as the R version. Installing this requires a Fortran compiler. 
+
+# Our Example has 2x3 table
+
+# stats.fisher_exact(clicks)
+
+
+# stats.fisher_exact(clicks.values)
+```
+
+## Multi-Arm Bandit Algorithm
+
+## Power and Sample Size
+
+### R
+
+```{r Estimate_SampleSize}
+effect_size = ES.h(p1=0.0121, p2=0.011) #calculates the effect size
+pwr.2p.test(h=effect_size, sig.level=0.05, power=0.8, alternative='greater')
+
+effect_size = ES.h(p1=0.0165, p2=0.011)
+pwr.2p.test(h=effect_size, sig.level=0.05, power=0.8, alternative='greater')
+```
+
+### Py
+
+```{python Estimate_SampleSize}
+# statsmodels has a number of methods for power calculation
+# 
+# see e.g.: https://machinelearningmastery.com/statistical-power-and-power-analysis-in-python/
+
+effect_size = sm.stats.proportion_effectsize(0.0121, 0.011)
+analysis = sm.stats.TTestIndPower()
+result = analysis.solve_power(effect_size=effect_size, 
+                              alpha=0.05, power=0.8, alternative='larger')
+print('Sample Size: %.3f' % result)
+
+effect_size = sm.stats.proportion_effectsize(0.0165, 0.011)
+analysis = sm.stats.TTestIndPower()
+result = analysis.solve_power(effect_size=effect_size, 
+                              alpha=0.05, power=0.8, alternative='larger')
+print('Sample Size: %.3f' % result)
+```
+
+
