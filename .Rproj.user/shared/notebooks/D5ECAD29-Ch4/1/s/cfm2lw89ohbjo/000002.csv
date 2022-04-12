@@ -1,0 +1,1 @@
+"0","plot(lung$Exposure, lung$PEFR, xlab=""Exposure"", ylab=""PEFR"", ylim=c(300,450), type=""n"", xaxs=""i"")"

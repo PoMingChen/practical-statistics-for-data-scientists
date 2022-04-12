@@ -1,0 +1,2 @@
+"0","text(mean(x), 400, labels=expression(b[1] == frac(Delta ~ Y, Delta ~ X)), cex=1.5)"
+"0",""

@@ -1,0 +1,1 @@
+"0","abline(a=model$coefficients[1], b=model$coefficients[2], col=""blue"", lwd=2)"

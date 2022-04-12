@@ -1,0 +1,23 @@
+"0","model <- lm(PEFR ~ Exposure, data=lung)"
+"0","model"
+"1","
+Call:
+"
+"1",""
+"1","lm(formula = PEFR ~ Exposure, data = lung)"
+"1",""
+"1","
+
+"
+"1","Coefficients:
+"
+"1","(Intercept)  "
+"1","   Exposure  "
+"1","
+"
+"1","    424.583  "
+"1","     -4.185  "
+"1","
+"
+"1","
+"

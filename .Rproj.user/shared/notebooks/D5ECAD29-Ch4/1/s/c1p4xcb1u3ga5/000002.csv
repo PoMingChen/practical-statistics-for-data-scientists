@@ -1,0 +1,28 @@
+"0","subset = ['AdjSalePrice', 'SqFtTotLiving', 'SqFtLot', 'Bathrooms', "
+"0","          'Bedrooms', 'BldgGrade']"
+"0",""
+"0","house = pd.read_csv(HOUSE_CSV, sep='\t')"
+"0","print(house[subset].head())"
+"1","   AdjSalePrice  SqFtTotLiving  SqFtLot  Bathrooms  Bedrooms  BldgGrade
+1      300805.0           2400     9373       3.00         6          7
+2     1076162.0           3764    20156       3.75         4         10
+3      761805.0           2060    26036       1.75         4          8
+4      442065.0           3200     8618       3.75         5          7
+5      297065.0           1720     8620       1.75         4          7
+"
+"0","predictors = ['SqFtTotLiving', 'SqFtLot', 'Bathrooms', "
+"0","              'Bedrooms', 'BldgGrade']"
+"0","outcome = 'AdjSalePrice'"
+"0",""
+"0","house_lm = LinearRegression()"
+"0","house_lm.fit(house[predictors], house[outcome])"
+"1","LinearRegression()
+"
+"0","print(f'Intercept: {house_lm.intercept_:.3f}')"
+"1","Intercept: -521871.368
+"
+"0","print('Coefficients:')"
+"1","Coefficients:
+"
+"0","for name, coef in zip(predictors, house_lm.coef_):"
+"0","    print(f' {name}: {coef}')"

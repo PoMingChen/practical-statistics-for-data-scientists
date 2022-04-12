@@ -1,0 +1,17 @@
+"0","reticulate::repl_python()"
+"2","Python 3.9.2 (/Users/chenpoming/opt/anaconda3/envs/r-reticulate/bin/python)
+Reticulate 1.24 REPL -- A Python interpreter in R.
+Enter 'exit' or 'quit' to exit the REPL and return to R.
+"
+"0","subset = ['AdjSalePrice', 'SqFtTotLiving', 'SqFtLot', 'Bathrooms', "
+"0","          'Bedrooms', 'BldgGrade']"
+"0",""
+"0","house = pd.read_csv(HOUSE_CSV, sep='\t')"
+"0","print(house[subset].head())"
+"1","   AdjSalePrice  SqFtTotLiving  SqFtLot  Bathrooms  Bedrooms  BldgGrade
+1      300805.0           2400     9373       3.00         6          7
+2     1076162.0           3764    20156       3.75         4         10
+3      761805.0           2060    26036       1.75         4          8
+4      442065.0           3200     8618       3.75         5          7
+5      297065.0           1720     8620       1.75         4          7
+"

@@ -1,0 +1,31 @@
+"2","NameError: name 'best_variables' is not defined
+"
+"1","Use quit() or Ctrl-D (i.e. EOF) to exit
+"
+"0","subset = ['AdjSalePrice', 'SqFtTotLiving', 'SqFtLot', 'Bathrooms', "
+"0","          'Bedrooms', 'BldgGrade']"
+"0",""
+"0","house = pd.read_csv(HOUSE_CSV, sep='\t')"
+"2","NameError: name 'pd' is not defined
+"
+"0","print(house[subset].head())"
+"2","NameError: name 'house' is not defined
+"
+"0","predictors = ['SqFtTotLiving', 'SqFtLot', 'Bathrooms', "
+"0","              'Bedrooms', 'BldgGrade']"
+"0","outcome = 'AdjSalePrice'"
+"0",""
+"0","house_lm = LinearRegression()"
+"2","NameError: name 'LinearRegression' is not defined
+"
+"0","house_lm.fit(house[predictors], house[outcome])"
+"2","NameError: name 'house_lm' is not defined
+"
+"0","print(f'Intercept: {house_lm.intercept_:.3f}')"
+"2","NameError: name 'house_lm' is not defined
+"
+"0","print('Coefficients:')"
+"1","Coefficients:
+"
+"0","for name, coef in zip(predictors, house_lm.coef_):"
+"0","    print(f' {name}: {coef}')"

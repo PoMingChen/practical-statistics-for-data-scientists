@@ -1,0 +1,1 @@
+"0","text(x[1], mean(y), labels=expression(Delta~Y), pos=2, cex=1.5)"

@@ -1,0 +1,1 @@
+"0","text(x=.3, y=model$coefficients[1], labels=expression(""b""[0]),  adj=0, cex=1.5)"
