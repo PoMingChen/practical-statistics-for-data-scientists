@@ -1,0 +1,48 @@
+"0","reticulate::repl_python()"
+"2","Python 3.9.2 (/Users/chenpoming/opt/anaconda3/envs/r-reticulate/bin/python)
+Reticulate 1.24 REPL -- A Python interpreter in R.
+Enter 'exit' or 'quit' to exit the REPL and return to R.
+"
+"0","house = pd.read_csv(HOUSE_CSV, sep='\t')"
+"0",""
+"0","predictors = ['SqFtTotLiving', 'SqFtLot', 'Bathrooms', "
+"0","              'Bedrooms', 'BldgGrade']"
+"0","outcome = 'AdjSalePrice'"
+"0",""
+"0","house_lm = LinearRegression()"
+"0","house_lm.fit(house[predictors], house[outcome])"
+"1","LinearRegression()
+"
+"0","zip_groups = pd.DataFrame(["
+"0","    *pd.DataFrame({"
+"0","        'ZipCode': house['ZipCode'],"
+"0","        'residual' : house[outcome] - house_lm.predict(house[predictors]),"
+"0","    })"
+"0","    .groupby(['ZipCode'])"
+"0","    .apply(lambda x: {"
+"0","        'ZipCode': x.iloc[0,0],"
+"0","        'count': len(x),"
+"0","        'median_residual': x.residual.median()"
+"0","    })"
+"0","]).sort_values('median_residual')"
+"0","zip_groups['cum_count'] = np.cumsum(zip_groups['count'])"
+"0","zip_groups['ZipGroup'] = pd.qcut(zip_groups['cum_count'], 5, labels=False, retbins=False)"
+"0","zip_groups.head()"
+"1","    ZipCode  count  median_residual  cum_count  ZipGroup
+36    98057      4   -537321.644462          4         0
+27    98043      1   -307661.343614          5         0
+46    98092    289   -193569.183599        294         0
+23    98038    788   -150066.477035       1082         0
+31    98051     32   -142352.869593       1114         0
+"
+"0","print(zip_groups.ZipGroup.value_counts().sort_index())"
+"1","0    16
+1    16
+2    16
+3    16
+4    16
+Name: ZipGroup, dtype: int64
+"
+"0","to_join = zip_groups[['ZipCode', 'ZipGroup']].set_index('ZipCode')"
+"0","house = house.join(to_join, on='ZipCode')"
+"0","house['ZipGroup'] = house['ZipGroup'].astype('category')"

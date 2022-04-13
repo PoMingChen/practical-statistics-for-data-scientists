@@ -1,0 +1,51 @@
+"0","reticulate::repl_python()"
+"2","Python 3.9.2 (/Users/chenpoming/opt/anaconda3/envs/r-reticulate/bin/python)
+Reticulate 1.24 REPL -- A Python interpreter in R.
+Enter 'exit' or 'quit' to exit the REPL and return to R.
+"
+"0","model = smf.ols(formula='AdjSalePrice ~  SqFtTotLiving*ZipGroup + SqFtLot + ' +"
+"0","     'Bathrooms + Bedrooms + BldgGrade + PropertyType', data=house)"
+"0","results = model.fit()"
+"0","print(results.summary())"
+"1","                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:           AdjSalePrice   R-squared:                       0.682
+Model:                            OLS   Adj. R-squared:                  0.682
+Method:                 Least Squares   F-statistic:                     3247.
+Date:                   三, 13  4 2022   Prob (F-statistic):               0.00
+Time:                        23:32:26   Log-Likelihood:            -3.1098e+05
+No. Observations:               22687   AIC:                         6.220e+05
+Df Residuals:                   22671   BIC:                         6.221e+05
+Df Model:                          15                                         
+Covariance Type:            nonrobust                                         
+=================================================================================================
+                                    coef    std err          t      P>|t|      [0.025      0.975]
+-------------------------------------------------------------------------------------------------
+Intercept                     -4.853e+05   2.05e+04    -23.701      0.000   -5.25e+05   -4.45e+05
+ZipGroup[T.1]                 -1.113e+04   1.34e+04     -0.830      0.407   -3.74e+04    1.52e+04
+ZipGroup[T.2]                  2.032e+04   1.18e+04      1.717      0.086   -2877.441    4.35e+04
+ZipGroup[T.3]                   2.05e+04   1.21e+04      1.697      0.090   -3180.870    4.42e+04
+ZipGroup[T.4]                 -1.499e+05   1.13e+04    -13.285      0.000   -1.72e+05   -1.28e+05
+PropertyType[T.Single Family]  1.357e+04   1.39e+04      0.975      0.330   -1.37e+04    4.09e+04
+PropertyType[T.Townhouse]     -5.884e+04   1.51e+04     -3.888      0.000   -8.85e+04   -2.92e+04
+SqFtTotLiving                   114.7650      4.863     23.600      0.000     105.233     124.297
+SqFtTotLiving:ZipGroup[T.1]      32.6043      5.712      5.708      0.000      21.409      43.799
+SqFtTotLiving:ZipGroup[T.2]      41.7822      5.187      8.056      0.000      31.616      51.948
+SqFtTotLiving:ZipGroup[T.3]      69.3415      5.619     12.341      0.000      58.329      80.354
+SqFtTotLiving:ZipGroup[T.4]     226.6836      4.820     47.032      0.000     217.237     236.131
+SqFtLot                           0.6869      0.052     13.296      0.000       0.586       0.788
+Bathrooms                     -3619.4533   3202.296     -1.130      0.258   -9896.174    2657.267
+Bedrooms                       -4.18e+04   2120.279    -19.715      0.000    -4.6e+04   -3.76e+04
+BldgGrade                      1.047e+05   2069.472     50.592      0.000    1.01e+05    1.09e+05
+==============================================================================
+Omnibus:                    30927.394   Durbin-Watson:                   1.581
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):         34361794.502
+Skew:                           7.279   Prob(JB):                         0.00
+Kurtosis:                     193.101   Cond. No.                     5.80e+05
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+[2] The condition number is large, 5.8e+05. This might indicate that there are
+strong multicollinearity or other numerical problems.
+"

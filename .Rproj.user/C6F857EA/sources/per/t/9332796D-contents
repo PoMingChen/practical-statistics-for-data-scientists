@@ -347,6 +347,208 @@ pd.DataFrame(([year, np.mean(group['abs_residual_lm']), np.mean(group['abs_resid
 
 ```
 
+## Factor Variables in Regression
+
+### R
+
+```{r Types_of_Dummy}
+### Dummy Variables Representation
+
+head(house[, 'PropertyType'])
+
+house$PropertyType %>% class() #character
+
+lm(AdjSalePrice ~ SqFtTotLiving + SqFtLot + Bathrooms + 
+     Bedrooms +  BldgGrade + PropertyType, data=house)
+
+```
+
+```{r One_Hot_Encoding}
+#The -1 argument in the model.matrix produces one hot encoding representation (by removing the intercept, hence the “-”). Otherwise, the default in R is to produce a matrix with P – 1 columns with the first factor level as a reference
+prop_type_dummies <- model.matrix(~PropertyType - 1, data=house)
+prop_type_dummies_test <- model.matrix(~PropertyType, data=house)
+
+head(prop_type_dummies)
+head(prop_type_dummies_test)
+```
+
+```{r Multi_lm_withfactor}
+#The default representation in R is to use the first factor level as a reference and inter‐ pret the remaining levels relative to that factor
+lm(AdjSalePrice ~ SqFtTotLiving + SqFtLot + Bathrooms + 
+     Bedrooms +  BldgGrade + PropertyType, data=house)
+```
+
+```{r Zipcode}
+table(house$ZipCode)
+```
+
+```{r Zipcode_Consolidation}
+zip_groups <- house %>%
+  mutate(resid = residuals(house_lm)) %>%
+  group_by(ZipCode) %>%
+  summarize(med_resid = median(resid),
+            cnt = n()) %>%
+  # sort the zip codes by the median residual
+  arrange(med_resid) %>%
+  mutate(cum_cnt = cumsum(cnt),
+         ZipGroup = factor(ntile(cum_cnt, 5)))
+
+house <- house %>%
+  left_join(select(zip_groups, ZipCode, ZipGroup), by='ZipCode')
+
+house %>% head(20)
+
+table(zip_groups[c('ZipGroup')])
+
+```
+
+### Py
+
+```{python Types_of_Dummy}
+print(house.PropertyType.head())
+```
+
+```{python One_Hot_Encoding}
+print(pd.get_dummies(house['PropertyType']).head(6))
+
+#drop_first = T, avoid multicollinearlity
+print(pd.get_dummies(house['PropertyType'], drop_first=True).head(6))
+```
+
+```{python Multi_lm_withfactor}
+predictors = ['SqFtTotLiving', 'SqFtLot', 'Bathrooms', 'Bedrooms',
+              'BldgGrade', 'PropertyType']
+
+X = pd.get_dummies(house[predictors], drop_first=True)
+
+house_lm_factor = LinearRegression()
+house_lm_factor.fit(X, house[outcome])
+
+print(f'Intercept: {house_lm_factor.intercept_:.3f}')
+print('Coefficients:')
+for name, coef in zip(X.columns, house_lm_factor.coef_):
+    print(f' {name}: {coef}')
+```
+
+```{python ZipCode}
+print(pd.DataFrame(house['ZipCode'].value_counts()).transpose())
+```
+
+```{python Zipcode_Consolidation}
+house = pd.read_csv(HOUSE_CSV, sep='\t')
+
+predictors = ['SqFtTotLiving', 'SqFtLot', 'Bathrooms', 
+              'Bedrooms', 'BldgGrade']
+outcome = 'AdjSalePrice'
+
+house_lm = LinearRegression()
+house_lm.fit(house[predictors], house[outcome])
+
+
+zip_groups = pd.DataFrame([
+    *pd.DataFrame({
+        'ZipCode': house['ZipCode'],
+        'residual' : house[outcome] - house_lm.predict(house[predictors]),
+    })
+    .groupby(['ZipCode'])
+    .apply(lambda x: {
+        'ZipCode': x.iloc[0,0],
+        'count': len(x),
+        'median_residual': x.residual.median()
+    })
+]).sort_values('median_residual')
+zip_groups['cum_count'] = np.cumsum(zip_groups['count'])
+zip_groups['ZipGroup'] = pd.qcut(zip_groups['cum_count'], 5, labels=False, retbins=False)
+zip_groups.head()
+print(zip_groups.ZipGroup.value_counts().sort_index())
+
+to_join = zip_groups[['ZipCode', 'ZipGroup']].set_index('ZipCode')
+house = house.join(to_join, on='ZipCode')
+house['ZipGroup'] = house['ZipGroup'].astype('category')
+```
+
+## Interpreting the Regression Equation
+
+### R
+
+```{r Corr_X}
+step_lm$coefficients
+```
+
+```{r fix_Corr_X}
+#This is the first time to leverage update() function
+update(step_lm, . ~ . -SqFtTotLiving - SqFtFinBasement - Bathrooms)
+```
+
+```{r Confounding}
+#Add the ZipGroup
+lm(AdjSalePrice ~  SqFtTotLiving + SqFtLot + 
+     Bathrooms + Bedrooms + 
+     BldgGrade + PropertyType + ZipGroup,
+   data=house, na.action=na.omit) -> ZipGroup_lm
+
+#Follow the update(step_lm, . ~ . -SqFtTotLiving - SqFtFinBasement - Bathrooms) to drop certain variables
+lm(AdjSalePrice ~   SqFtLot + Bedrooms + 
+     BldgGrade + PropertyType + ZipGroup,
+   data=house, na.action=na.omit) -> ZipGroup_lm_without_Corrlation
+
+summary(ZipGroup_lm)
+summary(ZipGroup_lm_without_Corrlation)
+```
+
+```{r Interaction}
+lm(AdjSalePrice ~  SqFtTotLiving*ZipGroup + SqFtLot + 
+     Bathrooms + Bedrooms + 
+     BldgGrade + PropertyType,
+   data=house, na.action=na.omit)
+```
+
+### Py
+
+```{python Corr_X}
+print(f'Intercept: {best_model.intercept_:.3f}')
+print('Coefficients:')
+for name, coef in zip(best_variables, best_model.coef_):
+    print(f' {name}: {coef}')
+```
+
+```{python fix_Corr_X}
+predictors = ['Bedrooms', 'BldgGrade', 'PropertyType', 'YrBuilt']
+outcome = 'AdjSalePrice'
+
+X = pd.get_dummies(house[predictors], drop_first=True)
+
+reduced_lm = LinearRegression()
+reduced_lm.fit(X, house[outcome])
+
+print(f'Intercept: {reduced_lm.intercept_:.3f}')
+print('Coefficients:')
+for name, coef in zip(X.columns, reduced_lm.coef_):
+    print(f' {name}: {coef}')
+```
+
+```{python Confounding}
+predictors = ['SqFtTotLiving', 'SqFtLot', 'Bathrooms', 'Bedrooms',
+              'BldgGrade', 'PropertyType', 'ZipGroup']
+outcome = 'AdjSalePrice'
+
+X = pd.get_dummies(house[predictors], drop_first=True)
+
+confounding_lm = LinearRegression()
+confounding_lm.fit(X, house[outcome])
+
+print(f'Intercept: {confounding_lm.intercept_:.3f}')
+print('Coefficients:')
+for name, coef in zip(X.columns, confounding_lm.coef_):
+    print(f' {name}: {coef}')
+```
+
+```{python Interaction}
+model = smf.ols(formula='AdjSalePrice ~  SqFtTotLiving*ZipGroup + SqFtLot + ' +
+     'Bathrooms + Bedrooms + BldgGrade + PropertyType', data=house)
+results = model.fit()
+print(results.summary())
+```
 
 
 

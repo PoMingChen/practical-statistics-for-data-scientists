@@ -1,0 +1,65 @@
+"0","# We can calculate the Year from the date column using either a list comprehension or the data frame's `apply` method."
+"0",""
+"0","house['Year'] = [int(date.split('-')[0]) for date in house.DocumentDate]"
+"0","house['Year'] = house.DocumentDate.apply(lambda d: int(d.split('-')[0]))"
+"0","house['Weight'] = house.Year - 2005"
+"0",""
+"0","predictors = ['SqFtTotLiving', 'SqFtLot', 'Bathrooms', "
+"0","              'Bedrooms', 'BldgGrade']"
+"0","outcome = 'AdjSalePrice'"
+"0",""
+"0","house_wt = LinearRegression()"
+"0","house_wt.fit(house[predictors], house[outcome], sample_weight=house.Weight)"
+"1","LinearRegression()
+"
+"0","pd.DataFrame({"
+"0","    'predictor': predictors,"
+"0","    'house_lm': house_lm.coef_,"
+"0","    'house_wt': house_wt.coef_,"
+"0","}).append({"
+"0","    'predictor': 'intercept', "
+"0","    'house_lm': house_lm.intercept_,"
+"0","    'house_wt': house_wt.intercept_,"
+"0","}, ignore_index=True)"
+"1","       predictor       house_lm       house_wt
+0  SqFtTotLiving     228.830604     245.024089
+1        SqFtLot      -0.060467      -0.292415
+2      Bathrooms  -19442.840398  -26085.970109
+3       Bedrooms  -47769.955185  -53608.876436
+4      BldgGrade  106106.963079  115242.434726
+5      intercept -521871.368188 -584189.329446
+"
+"0","residuals = pd.DataFrame({"
+"0","    'abs_residual_lm': np.abs(house_lm.predict(house[predictors]) - house[outcome]),"
+"0","    'abs_residual_wt': np.abs(house_wt.predict(house[predictors]) - house[outcome]),"
+"0","    'Year': house['Year'],"
+"0","})"
+"0","print(residuals.head())"
+"1","   abs_residual_lm  abs_residual_wt  Year
+1    123750.814194    107108.553965  2014
+2     59145.413089     96191.882094  2006
+3    190108.725716    187004.492880  2007
+4    198788.774412    196132.996857  2008
+5     91774.996129     84277.577512  2013
+"
+"0","# axes = residuals.boxplot(['abs_residual_lm', 'abs_residual_wt'], by='Year', figsize=(10, 4))"
+"0","# axes[0].set_ylim(0, 300000)"
+"0",""
+"0","pd.DataFrame(([year, np.mean(group['abs_residual_lm']), np.mean(group['abs_residual_wt'])] "
+"0","              for year, group in residuals.groupby('Year')),"
+"0","             columns=['Year', 'mean abs_residual_lm', 'mean abs_residual_wt'])"
+"1","   Year  mean abs_residual_lm  mean abs_residual_wt
+0  2006         140540.303585         146557.454636
+1  2007         147747.577959         152848.523235
+2  2008         142086.905943         146360.411668
+3  2009         147016.720883         151182.924825
+4  2010         163267.674885         166364.476152
+5  2011         169937.385744         172950.876028
+6  2012         169506.670053         171874.424266
+7  2013         203659.777510         206242.199403
+8  2014         184452.840665         186668.573750
+9  2015         172323.435147         169842.742053
+"
+"0","# for year, group in residuals.groupby('Year'):"
+"0","#     print(year, np.mean(group['abs_residual_lm']), np.mean(group['abs_residual_wt']))"
+"0",""

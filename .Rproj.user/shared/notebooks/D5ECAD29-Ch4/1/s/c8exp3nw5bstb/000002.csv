@@ -1,0 +1,24 @@
+"0","reticulate::repl_python()"
+"2","Python 3.9.2 (/Users/chenpoming/opt/anaconda3/envs/r-reticulate/bin/python)
+Reticulate 1.24 REPL -- A Python interpreter in R.
+Enter 'exit' or 'quit' to exit the REPL and return to R.
+"
+"0","print(pd.get_dummies(house['PropertyType']).head(6))"
+"1","   Multiplex  Single Family  Townhouse
+1          1              0          0
+2          0              1          0
+3          0              1          0
+4          0              1          0
+5          0              1          0
+6          0              0          1
+"
+"0","#drop_first = T, avoid multicollinearlity"
+"0","print(pd.get_dummies(house['PropertyType'], drop_first=True).head(6))"
+"1","   Single Family  Townhouse
+1              0          0
+2              1          0
+3              1          0
+4              1          0
+5              1          0
+6              0          1
+"

@@ -1,0 +1,22 @@
+"0","reticulate::repl_python()"
+"2","Python 3.9.2 (/Users/chenpoming/opt/anaconda3/envs/r-reticulate/bin/python)
+Reticulate 1.24 REPL -- A Python interpreter in R.
+Enter 'exit' or 'quit' to exit the REPL and return to R.
+"
+"0","predictors = ['SqFtTotLiving', 'SqFtLot', 'Bathrooms', 'Bedrooms',"
+"0","              'BldgGrade', 'PropertyType']"
+"0",""
+"0","X = pd.get_dummies(house[predictors], drop_first=True)"
+"0",""
+"0","house_lm_factor = LinearRegression()"
+"0","house_lm_factor.fit(X, house[outcome])"
+"1","LinearRegression()
+"
+"0","print(f'Intercept: {house_lm_factor.intercept_:.3f}')"
+"1","Intercept: -446841.366
+"
+"0","print('Coefficients:')"
+"1","Coefficients:
+"
+"0","for name, coef in zip(X.columns, house_lm_factor.coef_):"
+"0","    print(f' {name}: {coef}')"

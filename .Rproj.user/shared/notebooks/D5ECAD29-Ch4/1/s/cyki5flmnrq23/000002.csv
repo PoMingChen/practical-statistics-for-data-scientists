@@ -1,0 +1,46 @@
+"0","fitted = house_lm.predict(house[predictors])"
+"0","RMSE = np.sqrt(mean_squared_error(house[outcome], fitted))"
+"0","r2 = r2_score(house[outcome], fitted)"
+"0","print(f'RMSE: {RMSE:.0f}')"
+"1","RMSE: 261220
+"
+"0","print(f'r2: {r2:.4f}')"
+"1","r2: 0.5406
+"
+"0","# While _scikit-learn_ provides a variety of different metrics, _statsmodels_ provides a more in-depth analysis of the linear regression model. This package has two different ways of specifying the model, one that is similar to _scikit-learn_ and one that allows specifying _R_-style formulas. Here we use the first approach. As _statsmodels_ doesn't add an intercept automaticaly, we need to add a constant column with value 1 to the predictors. We can use the _pandas_ method assign for this."
+"0",""
+"0","model = sm.OLS(house[outcome], house[predictors].assign(const=1))"
+"0","results = model.fit()"
+"0","print(results.summary())"
+"1","                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:           AdjSalePrice   R-squared:                       0.541
+Model:                            OLS   Adj. R-squared:                  0.540
+Method:                 Least Squares   F-statistic:                     5338.
+Date:                   三, 13  4 2022   Prob (F-statistic):               0.00
+Time:                        23:22:04   Log-Likelihood:            -3.1517e+05
+No. Observations:               22687   AIC:                         6.304e+05
+Df Residuals:                   22681   BIC:                         6.304e+05
+Df Model:                           5                                         
+Covariance Type:            nonrobust                                         
+=================================================================================
+                    coef    std err          t      P>|t|      [0.025      0.975]
+---------------------------------------------------------------------------------
+SqFtTotLiving   228.8306      3.899     58.694      0.000     221.189     236.472
+SqFtLot          -0.0605      0.061     -0.988      0.323      -0.180       0.059
+Bathrooms     -1.944e+04   3625.388     -5.363      0.000   -2.65e+04   -1.23e+04
+Bedrooms      -4.777e+04   2489.732    -19.187      0.000   -5.27e+04   -4.29e+04
+BldgGrade      1.061e+05   2396.445     44.277      0.000    1.01e+05    1.11e+05
+const         -5.219e+05   1.57e+04    -33.342      0.000   -5.53e+05   -4.91e+05
+==============================================================================
+Omnibus:                    29676.557   Durbin-Watson:                   1.247
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):         19390738.346
+Skew:                           6.889   Prob(JB):                         0.00
+Kurtosis:                     145.559   Cond. No.                     2.86e+05
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+[2] The condition number is large, 2.86e+05. This might indicate that there are
+strong multicollinearity or other numerical problems.
+"

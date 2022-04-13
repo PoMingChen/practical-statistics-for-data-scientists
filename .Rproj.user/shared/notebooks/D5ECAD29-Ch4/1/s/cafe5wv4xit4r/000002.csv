@@ -1,0 +1,96 @@
+"0","reticulate::repl_python()"
+"2","Python 3.9.2 (/Users/chenpoming/opt/anaconda3/envs/r-reticulate/bin/python)
+Reticulate 1.24 REPL -- A Python interpreter in R.
+Enter 'exit' or 'quit' to exit the REPL and return to R.
+"
+"0","predictors = ['SqFtTotLiving', 'SqFtLot', 'Bathrooms', 'Bedrooms',"
+"0","              'BldgGrade', 'PropertyType', 'NbrLivingUnits',"
+"0","              'SqFtFinBasement', 'YrBuilt', 'YrRenovated', "
+"0","              'NewConstruction']"
+"0",""
+"0","X = pd.get_dummies(house[predictors], drop_first=True)"
+"0","X['NewConstruction'] = [1 if nc else 0 for nc in X['NewConstruction']]"
+"0",""
+"0","house_full = sm.OLS(house[outcome], X.assign(const=1))"
+"0","results = house_full.fit()"
+"0","print(results.summary())"
+"1","                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:           AdjSalePrice   R-squared:                       0.595
+Model:                            OLS   Adj. R-squared:                  0.594
+Method:                 Least Squares   F-statistic:                     2771.
+Date:                   三, 13  4 2022   Prob (F-statistic):               0.00
+Time:                        23:22:11   Log-Likelihood:            -3.1375e+05
+No. Observations:               22687   AIC:                         6.275e+05
+Df Residuals:                   22674   BIC:                         6.276e+05
+Df Model:                          12                                         
+Covariance Type:            nonrobust                                         
+==============================================================================================
+                                 coef    std err          t      P>|t|      [0.025      0.975]
+----------------------------------------------------------------------------------------------
+SqFtTotLiving                198.6364      4.234     46.920      0.000     190.338     206.934
+SqFtLot                        0.0771      0.058      1.330      0.184      -0.037       0.191
+Bathrooms                   4.286e+04   3808.114     11.255      0.000    3.54e+04    5.03e+04
+Bedrooms                   -5.187e+04   2396.904    -21.638      0.000   -5.66e+04   -4.72e+04
+BldgGrade                   1.373e+05   2441.242     56.228      0.000    1.32e+05    1.42e+05
+NbrLivingUnits              5723.8438   1.76e+04      0.326      0.744   -2.87e+04    4.01e+04
+SqFtFinBasement                7.0611      4.627      1.526      0.127      -2.009      16.131
+YrBuilt                    -3574.2210     77.228    -46.282      0.000   -3725.593   -3422.849
+YrRenovated                   -2.5311      3.924     -0.645      0.519     -10.222       5.160
+NewConstruction            -2489.1122   5936.692     -0.419      0.675   -1.41e+04    9147.211
+PropertyType_Single Family  2.997e+04   2.61e+04      1.149      0.251   -2.12e+04    8.11e+04
+PropertyType_Townhouse      9.286e+04    2.7e+04      3.438      0.001    3.99e+04    1.46e+05
+const                       6.182e+06   1.55e+05     39.902      0.000    5.88e+06    6.49e+06
+==============================================================================
+Omnibus:                    31006.128   Durbin-Watson:                   1.393
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):         26251977.078
+Skew:                           7.427   Prob(JB):                         0.00
+Kurtosis:                     168.984   Cond. No.                     2.98e+06
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+[2] The condition number is large, 2.98e+06. This might indicate that there are
+strong multicollinearity or other numerical problems.
+"
+"0","# We can use the `stepwise_selection` method from the _dmba_ package."
+"0",""
+"0","y = house[outcome]"
+"0",""
+"0","def train_model(variables):"
+"0","    if len(variables) == 0:"
+"0","        return None"
+"0","    model = LinearRegression()"
+"0","    model.fit(X[variables], y)"
+"0","    return model"
+"0",""
+"0","def score_model(model, variables):"
+"0","    if len(variables) == 0:"
+"0","        return AIC_score(y, [y.mean()] * len(y), model, df=1)"
+"0","    return AIC_score(y, model.predict(X[variables]), model)"
+"0",""
+"0","best_model, best_variables = stepwise_selection(X.columns, train_model, score_model, "
+"0","                                                verbose=True)"
+"1","Variables: SqFtTotLiving, SqFtLot, Bathrooms, Bedrooms, BldgGrade, NbrLivingUnits, SqFtFinBasement, YrBuilt, YrRenovated, NewConstruction, PropertyType_Single Family, PropertyType_Townhouse
+Start: score=647988.32, constant
+Step: score=633013.35, add SqFtTotLiving
+Step: score=630793.74, add BldgGrade
+Step: score=628230.29, add YrBuilt
+Step: score=627784.16, add Bedrooms
+Step: score=627602.21, add Bathrooms
+Step: score=627525.65, add PropertyType_Townhouse
+Step: score=627525.08, add SqFtFinBasement
+Step: score=627524.98, add PropertyType_Single Family
+Step: score=627524.98, unchanged None
+"
+"0","print()"
+"1","
+"
+"0","print(f'Intercept: {best_model.intercept_:.3f}')"
+"1","Intercept: 6178645.017
+"
+"0","print('Coefficients:')"
+"1","Coefficients:
+"
+"0","for name, coef in zip(best_variables, best_model.coef_):"
+"0","    print(f' {name}: {coef}')"

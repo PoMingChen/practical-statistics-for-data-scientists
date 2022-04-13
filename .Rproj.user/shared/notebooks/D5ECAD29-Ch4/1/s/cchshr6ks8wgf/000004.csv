@@ -1,0 +1,31 @@
+"0","predictors = ['SqFtTotLiving', 'SqFtLot', 'Bathrooms', 'Bedrooms',"
+"0","              'BldgGrade', 'PropertyType', 'ZipGroup']"
+"0","outcome = 'AdjSalePrice'"
+"0",""
+"0","X = pd.get_dummies(house[predictors], drop_first=True)"
+"0",""
+"0","confounding_lm = LinearRegression()"
+"0","confounding_lm.fit(X, house[outcome])"
+"1","LinearRegression()
+"
+"0","print(f'Intercept: {confounding_lm.intercept_:.3f}')"
+"1","Intercept: -666637.469
+"
+"0","print('Coefficients:')"
+"1","Coefficients:
+"
+"0","for name, coef in zip(X.columns, confounding_lm.coef_):"
+"0","    print(f' {name}: {coef}')"
+"0",""
+"1"," SqFtTotLiving: 210.61266005580154
+ SqFtLot: 0.45498713854659023
+ Bathrooms: 5928.425640001688
+ Bedrooms: -41682.87184074478
+ BldgGrade: 98541.18352725968
+ PropertyType_Single Family: 19323.625287919207
+ PropertyType_Townhouse: -78198.720927624
+ ZipGroup_1: 53317.17330659813
+ ZipGroup_2: 116251.58883563554
+ ZipGroup_3: 178360.53178793375
+ ZipGroup_4: 338408.60185652
+"
