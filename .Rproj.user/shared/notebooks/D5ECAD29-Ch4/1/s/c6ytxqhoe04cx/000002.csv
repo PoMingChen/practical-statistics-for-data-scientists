@@ -1,0 +1,18 @@
+"0","predictors = ['SqFtTotLiving', 'SqFtLot', 'Bathrooms', 'Bedrooms',"
+"0","              'BldgGrade', 'PropertyType', 'ZipGroup']"
+"0","outcome = 'AdjSalePrice'"
+"0",""
+"0","X = pd.get_dummies(house[predictors], drop_first=True)"
+"0",""
+"0","confounding_lm = LinearRegression()"
+"0","confounding_lm.fit(X, house[outcome])"
+"1","LinearRegression()
+"
+"0","print(f'Intercept: {confounding_lm.intercept_:.3f}')"
+"1","Intercept: -666637.469
+"
+"0","print('Coefficients:')"
+"1","Coefficients:
+"
+"0","for name, coef in zip(X.columns, confounding_lm.coef_):"
+"0","    print(f' {name}: {coef}')"

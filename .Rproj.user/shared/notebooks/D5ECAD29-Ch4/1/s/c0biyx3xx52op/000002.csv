@@ -1,8 +1,3 @@
-"0","reticulate::repl_python()"
-"2","Python 3.9.2 (/Users/chenpoming/opt/anaconda3/envs/r-reticulate/bin/python)
-Reticulate 1.24 REPL -- A Python interpreter in R.
-Enter 'exit' or 'quit' to exit the REPL and return to R.
-"
 "0","print(house.PropertyType.head())"
 "1","1        Multiplex
 2    Single Family

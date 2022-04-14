@@ -1,0 +1,17 @@
+"0","predictors = ['Bedrooms', 'BldgGrade', 'PropertyType', 'YrBuilt']"
+"0","outcome = 'AdjSalePrice'"
+"0",""
+"0","X = pd.get_dummies(house[predictors], drop_first=True)"
+"0",""
+"0","reduced_lm = LinearRegression()"
+"0","reduced_lm.fit(X, house[outcome])"
+"1","LinearRegression()
+"
+"0","print(f'Intercept: {reduced_lm.intercept_:.3f}')"
+"1","Intercept: 4913973.344
+"
+"0","print('Coefficients:')"
+"1","Coefficients:
+"
+"0","for name, coef in zip(X.columns, reduced_lm.coef_):"
+"0","    print(f' {name}: {coef}')"

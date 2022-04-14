@@ -1,0 +1,7 @@
+"0","lung = pd.read_csv(LUNG_CSV)"
+"0",""
+"0","lung.plot.scatter(x='Exposure', y='PEFR')"
+"1","<AxesSubplot:xlabel='Exposure', ylabel='PEFR'>
+"
+"0","plt.tight_layout()"
+"0","plt.show()"

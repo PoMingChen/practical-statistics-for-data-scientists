@@ -1,0 +1,36 @@
+"0","house_outlier = sm.OLS(house_98105[outcome], house_98105[predictors].assign(const=1))
+result_98105 = house_outlier.fit()
+print(result_98105.summary())
+"
+"1","                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:           AdjSalePrice   R-squared:                       0.795
+Model:                            OLS   Adj. R-squared:                  0.792
+Method:                 Least Squares   F-statistic:                     238.7
+Date:                   四, 14  4 2022   Prob (F-statistic):          1.69e-103
+Time:                        11:31:00   Log-Likelihood:                -4226.0
+No. Observations:                 313   AIC:                             8464.
+Df Residuals:                     307   BIC:                             8486.
+Df Model:                           5                                         
+Covariance Type:            nonrobust                                         
+=================================================================================
+                    coef    std err          t      P>|t|      [0.025      0.975]
+---------------------------------------------------------------------------------
+SqFtTotLiving   209.6023     24.408      8.587      0.000     161.574     257.631
+SqFtLot          38.9333      5.330      7.305      0.000      28.445      49.421
+Bathrooms      2282.2641      2e+04      0.114      0.909    -3.7e+04    4.16e+04
+Bedrooms      -2.632e+04   1.29e+04     -2.043      0.042   -5.17e+04    -973.867
+BldgGrade        1.3e+05   1.52e+04      8.533      0.000       1e+05     1.6e+05
+const         -7.725e+05   9.83e+04     -7.861      0.000   -9.66e+05   -5.79e+05
+==============================================================================
+Omnibus:                       82.127   Durbin-Watson:                   1.508
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):              586.561
+Skew:                           0.859   Prob(JB):                    4.26e-128
+Kurtosis:                       9.483   Cond. No.                     5.63e+04
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+[2] The condition number is large, 5.63e+04. This might indicate that there are
+strong multicollinearity or other numerical problems.
+"

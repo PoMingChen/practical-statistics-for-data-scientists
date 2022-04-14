@@ -1,0 +1,9 @@
+"0","print(outlier[predictors])
+"
+"1","SqFtTotLiving    2900
+SqFtLot          7276
+Bathrooms         3.0
+Bedrooms            6
+BldgGrade           7
+Name: 24333, dtype: object
+"

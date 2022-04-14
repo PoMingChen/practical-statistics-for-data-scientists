@@ -1,0 +1,6 @@
+"0","print(pd.DataFrame(house['ZipCode'].value_counts()).transpose())"
+"1","         98038  98103  98042  98115  98117  ...  98057  98224  98113  98043  98068
+ZipCode    788    671    641    620    619  ...      4      3      1      1      1
+
+[1 rows x 80 columns]
+"

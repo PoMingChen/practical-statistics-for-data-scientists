@@ -1,0 +1,52 @@
+"0","reticulate::repl_python()"
+"2","Python 3.9.2 (/Users/chenpoming/opt/anaconda3/envs/r-reticulate/bin/python)
+Reticulate 1.24 REPL -- A Python interpreter in R.
+Enter 'exit' or 'quit' to exit the REPL and return to R.
+"
+"0","print(f'Intercept: {model.intercept_:.3f}')"
+"1","Intercept: 424.583
+"
+"0","print(f'Coefficient Exposure: {model.coef_[0]:.3f}')"
+"1","Coefficient Exposure: -4.185
+"
+"0","fig, ax = plt.subplots(figsize=(4, 4))"
+"0","ax.set_xlim(0, 23)"
+"1","(0.0, 23.0)
+"
+"0","ax.set_ylim(295, 450)"
+"1","(295.0, 450.0)
+"
+"0","ax.set_xlabel('Exposure')"
+"1","Text(0.5, 0, 'Exposure')
+"
+"0","ax.set_ylabel('PEFR')"
+"1","Text(0, 0.5, 'PEFR')
+"
+"0","ax.plot((0, 23), model.predict([[0], [23]]))"
+"2","/Users/chenpoming/opt/anaconda3/envs/r-reticulate/lib/python3.9/site-packages/sklearn/base.py:450: UserWarning: X does not have valid feature names, but LinearRegression was fitted with feature names
+  warnings.warn(
+"
+"1","[<matplotlib.lines.Line2D object at 0x148204e50>]
+"
+"0","ax.text(0.4, model.intercept_, r'$b_0$', size='larger')"
+"1","Text(0.4, 424.582806573957, '$b_0$')
+"
+"0","x = [[7.5], [17.5]]"
+"0","y = model.predict(x)"
+"2","/Users/chenpoming/opt/anaconda3/envs/r-reticulate/lib/python3.9/site-packages/sklearn/base.py:450: UserWarning: X does not have valid feature names, but LinearRegression was fitted with feature names
+  warnings.warn(
+"
+"0","ax.plot((7.5, 7.5, 17.5), (y[0], y[1], y[1]), '--')"
+"1","[<matplotlib.lines.Line2D object at 0x14822b7f0>]
+"
+"0","ax.text(5, np.mean(y), r'$\Delta Y$', size='larger')"
+"1","Text(5, 372.275600505689, '$\\Delta Y$')
+"
+"0","ax.text(12, y[1] - 10, r'$\Delta X$', size='larger')"
+"1","Text(12, 341.35271807838177, '$\\Delta X$')
+"
+"0","ax.text(12, 390, r'$b_1 = \frac{\Delta Y}{\Delta X}$', size='larger')"
+"1","Text(12, 390, '$b_1 = \\frac{\\Delta Y}{\\Delta X}$')
+"
+"0","plt.tight_layout()"
+"0","plt.show()"
