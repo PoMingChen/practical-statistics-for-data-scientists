@@ -1,0 +1,20 @@
+"0","reticulate::repl_python()"
+"2","Python 3.9.2 (/Users/chenpoming/opt/anaconda3/envs/r-reticulate/bin/python)
+Reticulate 1.24 REPL -- A Python interpreter in R.
+Enter 'exit' or 'quit' to exit the REPL and return to R.
+"
+"0","fig, ax = plt.subplots(figsize=(5, 5))"
+"0","sns.regplot(x=result_98105.fittedvalues, y=np.abs(result_98105.resid), "
+"0","            scatter_kws={'alpha': 0.25},"
+"0","            line_kws={'color': 'C1'},"
+"0","            lowess=True, ax=ax)"
+"1","<AxesSubplot:>
+"
+"0","ax.set_xlabel('predicted')"
+"1","Text(0.5, 0, 'predicted')
+"
+"0","ax.set_ylabel('abs(residual)')"
+"1","Text(0, 0.5, 'abs(residual)')
+"
+"0","plt.tight_layout()"
+"0","plt.show()"

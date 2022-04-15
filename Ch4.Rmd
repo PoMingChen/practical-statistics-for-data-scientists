@@ -610,6 +610,22 @@ graph
 hist(std_resid, main='')
 ```
 
+```{r Partial_Residual}
+terms <- predict(lm_98105, type='terms')
+partial_resid <- resid(lm_98105) + terms
+
+df <- data.frame(SqFtTotLiving = house_98105[, 'SqFtTotLiving'],
+                 Terms = terms[, 'SqFtTotLiving'],
+                 PartialResid = partial_resid[, 'SqFtTotLiving'])
+graph <- ggplot(df, aes(SqFtTotLiving, PartialResid)) +
+  geom_point(shape=1) + scale_shape(solid = FALSE) +
+  geom_smooth(linetype=2) + 
+  geom_line(aes(SqFtTotLiving, Terms)) + 
+  scale_y_continuous(labels = function(x) format(x, scientific = FALSE))
+graph
+```
+
+
 
 ### Py
 
@@ -691,4 +707,178 @@ plt.tight_layout()
 plt.show()
 ```
 
+```{python Partial_Residual}
+fig, ax = plt.subplots(figsize=(5, 5))
+fig = sm.graphics.plot_ccpr(result_98105, 'SqFtTotLiving', ax=ax)
+
+plt.tight_layout()
+plt.show()
+
+fig = plt.figure(figsize=(8, 12))
+fig = sm.graphics.plot_ccpr_grid(result_98105, fig=fig)
+```
+
+## Polynomial
+
+### R
+
+```{r Poly}
+lm_poly <- lm(AdjSalePrice ~  poly(SqFtTotLiving, 2) + SqFtLot + 
+                BldgGrade +  Bathrooms +  Bedrooms,
+              data=house_98105)
+
+summary(lm_poly)
+```
+
+```{r Partial_Residual_Poly}
+terms <- predict(lm_poly, type='terms')
+terms %>% head()
+resid(lm_poly) %>% head()
+partial_resid <- resid(lm_poly) + terms
+lm_poly
+
+df <- data.frame(SqFtTotLiving = house_98105[, 'SqFtTotLiving'],
+                 Terms = terms[, 1],
+                 PartialResid = partial_resid[, 1])
+graph <- ggplot(df, aes(SqFtTotLiving, PartialResid)) +
+  geom_point(shape=1) + scale_shape(solid = FALSE) +
+  geom_smooth(linetype=2) + 
+  geom_line(aes(SqFtTotLiving, Terms)) +
+  scale_y_continuous(labels = function(x) format(x, scientific = FALSE))
+graph
+```
+
+```{r Spline}
+knots <- quantile(house_98105$SqFtTotLiving, p=c(.25, .5, .75))
+lm_spline <- lm(AdjSalePrice ~ bs(SqFtTotLiving, knots=knots, degree=3) +  SqFtLot +  
+                  Bathrooms + Bedrooms + BldgGrade,  data=house_98105)
+lm_spline
+
+terms1 <- predict(lm_spline, type='terms')
+partial_resid1 <- resid(lm_spline) + terms1
+
+df1 <- data.frame(SqFtTotLiving = house_98105[, 'SqFtTotLiving'],
+                 Terms = terms1[, 1],
+                 PartialResid = partial_resid1[, 1])
+
+df1
+
+graph <- ggplot(df1, aes(SqFtTotLiving, PartialResid)) +
+  geom_point(shape=1) + scale_shape(solid = FALSE) +
+  geom_smooth(linetype=2) + 
+  geom_line(aes(SqFtTotLiving, Terms)) +
+  scale_y_continuous(labels = function(x) format(x, scientific = FALSE))
+graph
+```
+
+```{r GAM}
+lm_gam <- gam(AdjSalePrice ~ s(SqFtTotLiving) + SqFtLot + 
+              Bathrooms +  Bedrooms + BldgGrade, 
+              data=house_98105)
+
+terms <- predict.gam(lm_gam, type='terms')
+partial_resid <- resid(lm_gam) + terms
+
+
+lm_gam
+summary(lm_gam)
+
+df <- data.frame(SqFtTotLiving = house_98105[, 'SqFtTotLiving'],
+                 Terms = terms[, 5],
+                 PartialResid = partial_resid[, 5])
+graph <- ggplot(df, aes(SqFtTotLiving, PartialResid)) +
+  geom_point(shape=1) + scale_shape(solid = FALSE) +
+  geom_smooth(linetype=2) + 
+  geom_line(aes(SqFtTotLiving, Terms)) +
+  scale_y_continuous(labels = function(x) format(x, scientific = FALSE))
+graph
+```
+
+
+### Py
+
+```{python Poly}
+model_poly = smf.ols(formula='AdjSalePrice ~  SqFtTotLiving + np.power(SqFtTotLiving, 2) + ' + 
+                'SqFtLot + Bathrooms + Bedrooms + BldgGrade', data=house_98105)
+result_poly = model_poly.fit()
+print(result_poly.summary())
+```
+
+```{python Poly_Partial_Residual}
+# The statsmodels implementation of a partial residual plot works only for linear term. Here is an implementation of a partial residual plot that, while inefficient, works for the polynomial regression.
+
+def partialResidualPlot(model, df, outcome, feature, ax):
+    y_pred = model.predict(df)
+    copy_df = df.copy()
+    for c in copy_df.columns:
+        if c == feature:
+            continue
+        copy_df[c] = 0.0
+    feature_prediction = model.predict(copy_df)
+    results = pd.DataFrame({
+        'feature': df[feature],
+        'residual': df[outcome] - y_pred,
+        'ypartial': feature_prediction - model.params[0],
+    })
+    results = results.sort_values(by=['feature'])
+    smoothed = sm.nonparametric.lowess(results.ypartial, results.feature, frac=1/3)
+    
+    ax.scatter(results.feature, results.ypartial + results.residual)
+    ax.plot(smoothed[:, 0], smoothed[:, 1], color='gray')
+    ax.plot(results.feature, results.ypartial, color='black')
+    ax.set_xlabel(feature)
+    ax.set_ylabel(f'Residual + {feature} contribution')
+    return ax
+
+fig, ax = plt.subplots(figsize=(5, 5))
+partialResidualPlot(result_poly, house_98105, 'AdjSalePrice', 'SqFtTotLiving', ax)
+
+plt.tight_layout()
+plt.show()
+print(result_poly.params[2])
+```
+
+```{python Spline}
+formula = ('AdjSalePrice ~ bs(SqFtTotLiving, df=6, degree=3) + ' + 
+           'SqFtLot + Bathrooms + Bedrooms + BldgGrade')
+model_spline = smf.ols(formula=formula, data=house_98105)
+result_spline = model_spline.fit()
+print(result_spline.summary())
+
+fig, ax = plt.subplots(figsize=(5, 5))
+partialResidualPlot(result_spline, house_98105, 'AdjSalePrice', 'SqFtTotLiving', ax)
+
+plt.tight_layout()
+plt.show()
+```
+
+```{python GAM}
+predictors = ['SqFtTotLiving', 'SqFtLot', 'Bathrooms', 
+              'Bedrooms', 'BldgGrade']
+outcome = 'AdjSalePrice'
+X = house_98105[predictors].values
+y = house_98105[outcome]
+
+## model
+gam = LinearGAM(s(0, n_splines=12) + l(1) + l(2) + l(3) + l(4))
+gam.gridsearch(X, y)
+print(gam.summary()) #UserWarning: KNOWN BUG: p-values computed in this summary are likely much smaller than they should be. 
+ 
+Please do not make inferences based on these values! 
+
+fig, axes = plt.subplots(figsize=(8, 8), ncols=2, nrows=3)
+
+titles = ['SqFtTotLiving', 'SqFtLot', 'Bathrooms', 'Bedrooms', 'BldgGrade']
+for i, title in enumerate(titles):
+    ax = axes[i // 2, i % 2]
+    XX = gam.generate_X_grid(term=i)
+    ax.plot(XX[:, i], gam.partial_dependence(term=i, X=XX))
+    ax.plot(XX[:, i], gam.partial_dependence(term=i, X=XX, width=.95)[1], c='r', ls='--')
+    ax.set_title(titles[i]);
+    
+axes[2][1].set_visible(False)
+
+plt.tight_layout()
+plt.show()
+```
 

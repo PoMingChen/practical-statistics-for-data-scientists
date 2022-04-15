@@ -1,8 +1,10 @@
-"0","print(house.PropertyType.head())"
-"1","1        Multiplex
-2    Single Family
-3    Single Family
-4    Single Family
-5    Single Family
-Name: PropertyType, dtype: object
+"1"," SqFtTotLiving: 199.27755304201884
+ BldgGrade: 137159.56022619773
+ YrBuilt: -3565.4249392492993
+ Bedrooms: -51947.38367361318
+ Bathrooms: 42396.164527717796
+ PropertyType_Townhouse: 84479.16203300405
+ SqFtFinBasement: 7.046974967553979
+ PropertyType_Single Family: 22912.055187017682
+Use quit() or Ctrl-D (i.e. EOF) to exit
 "

@@ -1,0 +1,39 @@
+"0","print(gam.summary())
+"
+"2","<string>:1: UserWarning: KNOWN BUG: p-values computed in this summary are likely much smaller than they should be. 
+ 
+Please do not make inferences based on these values! 
+
+Collaborate on a solution, and stay up to date at: 
+github.com/dswah/pyGAM/issues/163 
+
+"
+"1","LinearGAM                                                                                                 
+=============================================== ==========================================================
+Distribution:                        NormalDist Effective DoF:                                      7.6772
+Link Function:                     IdentityLink Log Likelihood:                                 -7833.1159
+Number of Samples:                          313 AIC:                                            15683.5863
+                                                AICc:                                             15684.14
+                                                GCV:                                      30838885095.1676
+                                                Scale:                                    29480381715.8292
+                                                Pseudo R-Squared:                                   0.8117
+==========================================================================================================
+Feature Function                  Lambda               Rank         EDoF         P > x        Sig. Code   
+================================= ==================== ============ ============ ============ ============
+s(0)                              [15.8489]            12           4.3          1.11e-16     ***         
+l(1)                              [15.8489]            1            0.9          2.35e-10     ***         
+l(2)                              [15.8489]            1            0.8          8.45e-01                 
+l(3)                              [15.8489]            1            0.9          3.79e-01                 
+l(4)                              [15.8489]            1            0.8          1.11e-16     ***         
+intercept                                              1            0.0          9.14e-01                 
+==========================================================================================================
+Significance codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+WARNING: Fitting splines and a linear function to a feature introduces a model identifiability problem
+         which can cause p-values to appear significant when they are not.
+
+WARNING: p-values calculated in this manner behave correctly for un-penalized models or models with
+         known smoothing parameters, but when smoothing parameters have been estimated, the p-values
+         are typically lower than they should be, meaning that the tests reject the null too readily.
+None
+"
