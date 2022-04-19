@@ -1,0 +1,33 @@
+"0","reticulate::repl_python()"
+"2","Python 3.9.2 (/Users/chenpoming/opt/anaconda3/envs/r-reticulate/bin/python)
+Reticulate 1.24 REPL -- A Python interpreter in R.
+Enter 'exit' or 'quit' to exit the REPL and return to R.
+"
+"0","loan3000 = pd.read_csv(LOAN3000_CSV)"
+"0","loan3000.outcome = loan3000.outcome.astype('category')"
+"0",""
+"0","predictors = ['borrower_score', 'payment_inc_ratio']"
+"0","outcome = 'outcome'"
+"0",""
+"0","X = loan3000[predictors]"
+"0","y = loan3000[outcome]"
+"0",""
+"0","loan_lda = LinearDiscriminantAnalysis()"
+"0","loan_lda.fit(X, y)"
+"1","LinearDiscriminantAnalysis()
+"
+"0","print(pd.DataFrame(loan_lda.scalings_, index=X.columns))"
+"1","                          0
+borrower_score     7.175839
+payment_inc_ratio -0.099676
+"
+"0","pred = pd.DataFrame(loan_lda.predict_proba(loan3000[predictors]),"
+"0","                    columns=loan_lda.classes_)"
+"0","print(pred.head())"
+"1","    default  paid off
+0  0.553544  0.446456
+1  0.558953  0.441047
+2  0.272696  0.727304
+3  0.506254  0.493746
+4  0.609952  0.390048
+"

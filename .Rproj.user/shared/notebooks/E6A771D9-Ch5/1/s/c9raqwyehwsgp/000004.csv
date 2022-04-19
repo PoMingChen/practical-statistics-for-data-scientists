@@ -1,0 +1,18 @@
+"0","df <- data.frame(payment_inc_ratio = loan_data[, 'payment_inc_ratio'],"
+"0","                 terms = 1/(1 + exp(-terms[, 's(payment_inc_ratio)'])),"
+"0","                 partial_resid = 1/(1 + exp(-partial_resid[, 's(payment_inc_ratio)'])))"
+"0",""
+"0","graph <- ggplot(df, aes(x=payment_inc_ratio, y=partial_resid, solid = FALSE)) +"
+"0","  geom_point(shape=46, alpha=0.4) +"
+"0","  geom_line(aes(x=payment_inc_ratio, y=terms), "
+"0","            color='red', alpha=0.5, size=1.5) +"
+"0","  labs(y='Partial Residual') +"
+"0","  xlim(0, 25) +"
+"0","  theme_bw()"
+"0","graph"
+"2","警告："
+"2"," Removed 9 rows containing missing values (geom_point).
+"
+"2","警告："
+"2"," Removed 9 row(s) containing missing values (geom_path).
+"

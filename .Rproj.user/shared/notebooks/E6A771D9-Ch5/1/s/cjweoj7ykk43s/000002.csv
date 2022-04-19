@@ -1,0 +1,21 @@
+"0","library(mgcv)
+"
+"2","警告："
+"2"," 套件 ‘mgcv’ 是用 R 版本 4.1.2 來建造的
+"
+"2","載入需要的套件：nlme
+"
+"2","警告："
+"2"," 套件 ‘nlme’ 是用 R 版本 4.1.2 來建造的
+"
+"2","
+載入套件：‘nlme’
+
+"
+"2","下列物件被遮斷自 ‘package:dplyr’:
+
+    collapse
+
+"
+"2","This is mgcv 1.8-40. For overview type 'help(""mgcv-package"")'.
+"

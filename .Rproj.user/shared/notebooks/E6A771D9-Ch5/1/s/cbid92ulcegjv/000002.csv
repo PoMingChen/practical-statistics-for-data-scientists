@@ -1,0 +1,48 @@
+"0","reticulate::repl_python()"
+"2","Python 3.9.2 (/Users/chenpoming/opt/anaconda3/envs/r-reticulate/bin/python)
+Reticulate 1.24 REPL -- A Python interpreter in R.
+Enter 'exit' or 'quit' to exit the REPL and return to R.
+"
+"0","import statsmodels.formula.api as smf"
+"0","formula = ('outcome ~ bs(payment_inc_ratio, df=8) + purpose_ + ' +"
+"0","           'home_ + emp_len_ + bs(borrower_score, df=3)')"
+"0","model = smf.glm(formula=formula, data=loan_data, family=sm.families.Binomial())"
+"0","results = model.fit()"
+"0","print(results.summary())"
+"1","                             Generalized Linear Model Regression Results                             
+=====================================================================================================
+Dep. Variable:     ['outcome[default]', 'outcome[paid off]']   No. Observations:                45342
+Model:                                                   GLM   Df Residuals:                    45321
+Model Family:                                       Binomial   Df Model:                           20
+Link Function:                                         Logit   Scale:                          1.0000
+Method:                                                 IRLS   Log-Likelihood:                -28731.
+Date:                                          二, 19  4 2022   Deviance:                       57462.
+Time:                                               12:29:40   Pearson chi2:                 4.54e+04
+No. Iterations:                                            6   Pseudo R-squ. (CS):             0.1122
+Covariance Type:                                   nonrobust                                         
+==================================================================================================
+                                     coef    std err          z      P>|z|      [0.025      0.975]
+--------------------------------------------------------------------------------------------------
+Intercept                          1.5756      0.331      4.765      0.000       0.928       2.224
+purpose_[T.debt_consolidation]     0.2486      0.028      8.998      0.000       0.194       0.303
+purpose_[T.home_improvement]       0.4097      0.047      8.757      0.000       0.318       0.501
+purpose_[T.major_purchase]         0.2382      0.054      4.416      0.000       0.132       0.344
+purpose_[T.medical]                0.5206      0.087      5.980      0.000       0.350       0.691
+purpose_[T.other]                  0.6284      0.040     15.781      0.000       0.550       0.706
+purpose_[T.small_business]         1.2250      0.063     19.305      0.000       1.101       1.349
+home_[T.OWN]                       0.0498      0.038      1.309      0.191      -0.025       0.124
+home_[T.RENT]                      0.1577      0.021      7.431      0.000       0.116       0.199
+emp_len_[T. > 1 Year]             -0.3526      0.053     -6.699      0.000      -0.456      -0.249
+bs(payment_inc_ratio, df=8)[0]     0.7042      0.342      2.060      0.039       0.034       1.374
+bs(payment_inc_ratio, df=8)[1]     0.6621      0.198      3.351      0.001       0.275       1.049
+bs(payment_inc_ratio, df=8)[2]     0.8118      0.245      3.309      0.001       0.331       1.293
+bs(payment_inc_ratio, df=8)[3]     1.0377      0.223      4.644      0.000       0.600       1.476
+bs(payment_inc_ratio, df=8)[4]     1.1901      0.233      5.112      0.000       0.734       1.646
+bs(payment_inc_ratio, df=8)[5]     2.8404      0.316      8.980      0.000       2.220       3.460
+bs(payment_inc_ratio, df=8)[6]    -1.3427      1.229     -1.092      0.275      -3.752       1.067
+bs(payment_inc_ratio, df=8)[7]     7.1094      6.393      1.112      0.266      -5.420      19.639
+bs(borrower_score, df=3)[0]       -2.9011      0.533     -5.448      0.000      -3.945      -1.857
+bs(borrower_score, df=3)[1]       -2.6056      0.196    -13.284      0.000      -2.990      -2.221
+bs(borrower_score, df=3)[2]       -5.7421      0.508    -11.313      0.000      -6.737      -4.747
+==================================================================================================
+"

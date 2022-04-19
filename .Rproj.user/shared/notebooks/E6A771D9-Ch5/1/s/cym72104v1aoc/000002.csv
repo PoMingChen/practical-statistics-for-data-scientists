@@ -1,0 +1,42 @@
+"0","reticulate::repl_python()"
+"2","Python 3.9.2 (/Users/chenpoming/opt/anaconda3/envs/r-reticulate/bin/python)
+Reticulate 1.24 REPL -- A Python interpreter in R.
+Enter 'exit' or 'quit' to exit the REPL and return to R.
+"
+"0","# For comparison, here the GLM model using _statsmodels_. This method requires that the outcome is mapped to numbers."
+"0",""
+"0","# use GLM (general linear model) with the binomial family to "
+"0","# fit a logistic regression"
+"0","y_numbers = [1 if yi == 'default' else 0 for yi in y]"
+"0","logit_reg_sm = sm.GLM(y_numbers, X.assign(const=1), "
+"0","                      family=sm.families.Binomial())"
+"0","logit_result = logit_reg_sm.fit()"
+"0","print(logit_result.summary())"
+"1","                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                45342
+Model:                            GLM   Df Residuals:                    45330
+Model Family:                Binomial   Df Model:                           11
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -28757.
+Date:                   二, 19  4 2022   Deviance:                       57515.
+Time:                        12:25:56   Pearson chi2:                 4.54e+04
+No. Iterations:                     4   Pseudo R-squ. (CS):             0.1112
+Covariance Type:            nonrobust                                         
+======================================================================================
+                         coef    std err          z      P>|z|      [0.025      0.975]
+--------------------------------------------------------------------------------------
+payment_inc_ratio      0.0797      0.002     32.058      0.000       0.075       0.085
+borrower_score        -4.6126      0.084    -55.203      0.000      -4.776      -4.449
+debt_consolidation     0.2494      0.028      9.030      0.000       0.195       0.303
+home_improvement       0.4077      0.047      8.747      0.000       0.316       0.499
+major_purchase         0.2296      0.054      4.277      0.000       0.124       0.335
+medical                0.5105      0.087      5.882      0.000       0.340       0.681
+other                  0.6207      0.039     15.738      0.000       0.543       0.698
+small_business         1.2153      0.063     19.192      0.000       1.091       1.339
+OWN                    0.0483      0.038      1.271      0.204      -0.026       0.123
+RENT                   0.1573      0.021      7.420      0.000       0.116       0.199
+ > 1 Year             -0.3567      0.053     -6.779      0.000      -0.460      -0.254
+const                  1.6381      0.074     22.224      0.000       1.494       1.783
+======================================================================================
+"
